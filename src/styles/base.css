@@ -1,0 +1,26 @@
+   /* src/style/base.css */
+
+   /* Fonts */
+
+   /* Satoshi - Regular */
+   @font-face {
+       font-family: 'Satoshi';
+       src: url('../fonts/Satoshi-Regular.woff2') format('woff2');
+       font-weight: 400;
+       font-style: normal;
+   }
+
+   /* Montserrat - Bold */
+   @font-face {
+       font-family: 'Montserrat';
+       src: url('../fonts/Montserrat-Bold.ttf') format('truetype');
+       font-weight: 700;
+       font-style: normal;
+   }
+
+   /* Global Defaults */
+
+   body {
+       /* Apply primary font globally */
+       font-family: var(--fprim);
+   }
