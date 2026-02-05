@@ -31,6 +31,7 @@ The application follows a **feature-based + layered architecture**:
 
 ## 📁 Project Structure
 
+```text
 ├── .gitignore
 ├── package-lock.json
 ├── package.json
@@ -100,7 +101,7 @@ The application follows a **feature-based + layered architecture**:
 │       ├── main.css
 │       ├── tailwind.css
 │       └── theme.css
-
+```
 
 ---
 
