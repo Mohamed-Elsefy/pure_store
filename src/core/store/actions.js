@@ -119,3 +119,48 @@ export const UIActions = {
         localStorage.setItem('theme', newTheme);
     }
 };
+
+// product actions
+export const ProductActions = {
+    /**
+     * Updates the global search query used to filter products.
+     * Typically called when the user types in the search input.
+     *
+     * @param {string} query - The search text entered by the user.
+     */
+    setSearchQuery: (query) => {
+        store.setState({ searchQuery: query });
+    },
+
+    /**
+     * Updates product filters coming from the sidebar or filter UI.
+     * Merges the new filters with the existing ones to avoid overwriting
+     * previously applied filters.
+     *
+     * @param {Object} newFilters - An object containing the updated filters.
+     */
+    updateFilters: (newFilters) => {
+        const { filters } = store.getState();
+        store.setState({
+            filters: { ...filters, ...newFilters }
+        });
+    },
+
+    /**
+     * Resets all product filters to their default values.
+     * - Clears the global search query.
+     * - Removes the selected category.
+     * - Resets the price range to its initial limits.
+     * This is typically used when the user clicks a "Reset Filters" button.
+     */
+    resetFilters: () => {
+        store.setState({
+            searchQuery: '',
+            filters: {
+                category: null,
+                minPrice: 0,
+                maxPrice: Infinity
+            }
+        });
+    }
+};

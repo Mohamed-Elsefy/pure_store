@@ -1,0 +1,51 @@
+<section class="space-y-8 border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-700 pb-6 md:pb-0 md:pr-6">
+
+    <!-- Sorting Options -->
+    <div class="border-t pt-6 dark:border-gray-700">
+        <h3 class="font-bold text-sm uppercase mb-4">Sort By</h3>
+        <select id="sort-products" class="w-full p-2 border rounded dark:bg-gray-800 dark:border-gray-600 text-sm">
+            <option value="">Default</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="rating-desc">Rating: High to Low</option>
+            <option value="title-asc">Name: A to Z</option>
+            <option value="created-desc">Newest</option>
+            <!-- <option value="best-seller">Best Selling</option> --> <!-- إذا توفر API -->
+        </select>
+    </div>
+
+    <!-- Category -->
+    <div class="border-t pt-6 dark:border-gray-700">
+        <button class="flex justify-between items-center w-full font-bold text-sm uppercase">
+            Category
+            <span>›</span>
+        </button>
+        <ul id="categories-list">
+            <li class="category-item hover:text-black dark:hover:text-white cursor-pointer capitalize transition-colors"
+                data-category="electronics">
+            </li>
+
+        </ul>
+    </div>
+
+    <!-- Price Range -->
+    <div class="border-t pt-6 dark:border-gray-700">
+        <h3 class="font-bold text-sm uppercase mb-4">Price Range</h3>
+        <div class="flex items-center gap-2">
+            <input type="number" id="min-price" placeholder="Min" min="0"
+                class="w-full p-2 border rounded dark:bg-gray-800 dark:border-gray-600 text-sm">
+            <span class="text-gray-500">-</span>
+            <input type="number" id="max-price" placeholder="Max" min="0"
+                class="w-full p-2 border rounded dark:bg-gray-800 dark:border-gray-600 text-sm">
+        </div>
+    </div>
+
+    <!-- Reset Filters -->
+    <div class="border-t pt-6 dark:border-gray-700">
+        <button id="reset-filters" class="w-full text-sm font-bold uppercase py-2 border border-gray-300 dark:border-gray-600
+               hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition">
+            Reset Filters
+        </button>
+    </div>
+
+</section>

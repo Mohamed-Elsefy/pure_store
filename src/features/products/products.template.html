@@ -1,37 +1,35 @@
 <!-- Products Page Template -->
- 
-<section class="p-6">
 
-    <!-- Header / Title -->
-    <div class="flex items-center justify-between mb-10">
-        <h2 class="text-3xl font-bold">Catalog</h2>
-        <!-- Back to Home link -->
-        <a href="/home" data-link class="text-blue-600 hover:underline">← Back Home</a>
-    </div>
+<button id="sidebar-toggle" class="md:hidden p-2 m-4 bg-primary text-white rounded">
+    ☰ Filters
+</button>
 
-    <!-- Products Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+<div class="flex">
+    <!-- Sidebar -->
+    <aside id="sidebar-container"
+        class="fixed top-0 left-0 h-full w-64 bg-white dark:bg-gray-800 transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-50 md:relative md:block p-4 overflow-y-auto">
+    </aside>
 
-        <!-- Product Card Example -->
-        <div class="border dark:border-gray-700 p-6 rounded-2xl bg-white dark:bg-gray-800 text-center">
-            <!-- Image Placeholder -->
-            <div class="w-full h-40 bg-gray-200 dark:bg-gray-700 rounded-xl mb-4 flex items-center justify-center text-gray-400">
-                Image Placeholder
-            </div>
-            <!-- Product Name -->
-            <h3 class="font-bold text-xl mb-2">Sample Product</h3>
-            <!-- Product Price -->
-            <p class="text-blue-600 font-bold">$99.99</p>
+    <!-- المحتوى -->
+    <main id="grid-container" class="flex-1 md:ml-0 ml-0 p-4">
+        <!-- منتجات -->
+        <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12"></div>
+
+        <!-- Pagination ثابت -->
+        <div id="pagination-wrapper" class="flex justify-center items-center gap-4 mt-6">
+            <button id="pagination-prev" class="px-4 py-2 border rounded hover:bg-gray-200 disabled:opacity-50">
+                Previous
+            </button>
+            <span id="pagination-info" class="px-2 text-sm text-gray-700 dark:text-gray-300">
+                Page 1 of 1
+            </span>
+            <button id="pagination-next" class="px-4 py-2 border rounded hover:bg-gray-200 disabled:opacity-50">
+                Next
+            </button>
         </div>
+    </main>
 
-        <!-- Another Product Card Example -->
-        <div class="border dark:border-gray-700 p-6 rounded-2xl bg-white dark:bg-gray-800 text-center">
-            <div class="w-full h-40 bg-gray-200 dark:bg-gray-700 rounded-xl mb-4 flex items-center justify-center text-gray-400">
-                Image Placeholder
-            </div>
-            <h3 class="font-bold text-xl mb-2">Another Item</h3>
-            <p class="text-blue-600 font-bold">$45.00</p>
-        </div>
+</div>
 
-    </div>
-</section>
+<!-- خلفية شفافة عند فتح السايدبار على الهاتف -->
+<div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-40 md:hidden"></div>

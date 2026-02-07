@@ -1,29 +1,228 @@
-// src/features/products/products.controller.js
+// src/teatures/products/products.controller.js
 
-// Import template loader utility
 import { loadTemplate } from '../../core/utils/template.loader.js';
+import { ProductService } from '../../core/services/product.service.js';
+import { ProductsView } from './products.view.js';
+import { ProductActions } from '../../core/store/actions.js';
 
-/**
- * ProductsController
- * Responsible for rendering the Products (Catalog) page.
- * Currently only loads the template; data fetching can be added later.
- */
 export class ProductsController {
-    /**
-     * Initialize the products page
-     * Loads the HTML template dynamically and injects it into the app container
-     */
+    constructor() {
+        // HTML template for a single product card
+        this.cardTemplate = '';
+
+        // Number of products per page
+        this.itemsPerPage = 12;
+
+        // Current pagination page
+        this.currentPage = 1;
+
+        // Currently selected category
+        this.currentCategory = null;
+
+        // Active price filters
+        this.filters = {};
+
+        // Current sort option
+        this.sortBy = '';
+
+        // Timeout reference for delayed sidebar closing
+        this._closeSidebarTimeout = null;
+    }
+
     async init() {
-        // Get main application container
+        // Load main products page template into #app
         const app = document.getElementById('app');
+        const mainTemplate = await loadTemplate('/src/features/products/products.template.html');
+        app.innerHTML = mainTemplate;
 
-        // Load the products page template
-        const template = await loadTemplate('/src/features/products/products.template.html');
+        // Render sidebar and grid layout
+        await ProductsView.renderLayout();
 
-        // Inject template into the DOM
-        app.innerHTML = template;
+        // Initialize sidebar behavior and reset button
+        this.initSidebar();
+        this.bindResetButton();
 
-        // Note: In a full implementation, you would fetch products from ProductService here
-        // and render them dynamically instead of using placeholders
+        // Load product card template and categories in parallel
+        const [cardTemplate, categories] = await Promise.all([
+            ProductsView.getCardTemplate(),
+            ProductService.getCategories()
+        ]);
+        this.cardTemplate = cardTemplate;
+
+        // Handle category selection
+        ProductsView.renderCategories(categories, (category) => {
+            this.currentCategory = category;
+            this.currentPage = 1;
+            this.fetchProducts();
+            this.closeSidebar();
+        });
+
+        // Bind price filters (with delayed sidebar close)
+        ProductsView.bindFilters((filters) => {
+            this.filters = filters;
+            this.currentPage = 1;
+            this.fetchProducts();
+
+            clearTimeout(this._closeSidebarTimeout);
+            this._closeSidebarTimeout = setTimeout(() => this.closeSidebar(), 800);
+        });
+
+        // Bind sorting dropdown
+        const sortSelect = document.getElementById('sort-products');
+        sortSelect?.addEventListener('change', () => {
+            this.sortBy = sortSelect.value;
+            this.currentPage = 1;
+            this.fetchProducts();
+            this.closeSidebar();
+        });
+
+        // Static pagination buttons
+        document.getElementById('pagination-prev')?.addEventListener('click', () => {
+            if (this.currentPage > 1) {
+                this.currentPage--;
+                this.fetchProducts();
+            }
+        });
+
+        document.getElementById('pagination-next')?.addEventListener('click', () => {
+            if (this.currentPage < ProductsView.totalPages) {
+                this.currentPage++;
+                this.fetchProducts();
+            }
+        });
+
+        // Initial products fetch
+        this.fetchProducts();
+    }
+
+    async fetchProducts() {
+        try {
+            // Fetch all products (no backend pagination)
+            let result = this.currentCategory
+                ? await ProductService.getProductsByCategory(this.currentCategory, { page: 1, limit: 0 })
+                : await ProductService.getAllProducts({ page: 1, limit: 0 });
+
+            let products = result.products;
+
+            // Apply price filtering
+            const { minPrice, maxPrice } = this.filters;
+            products = products.filter(p => {
+                const price = Number(p.price) || 0;
+                return (minPrice != null ? price >= minPrice : true) &&
+                    (maxPrice != null ? price <= maxPrice : true);
+            });
+
+            // Apply sorting
+            products.sort((a, b) => {
+                switch (this.sortBy) {
+                    case 'price-asc': return a.price - b.price;
+                    case 'price-desc': return b.price - a.price;
+                    case 'rating-desc': return (b.rating || 0) - (a.rating || 0);
+                    case 'title-asc': return a.title.localeCompare(b.title);
+                    case 'created-desc':
+                        return new Date(b.meta?.createdAt) - new Date(a.meta?.createdAt);
+                    default:
+                        return 0;
+                }
+            });
+
+            // Calculate pagination data
+            const totalPages = Math.ceil(products.length / this.itemsPerPage);
+            if (this.currentPage > totalPages) this.currentPage = totalPages || 1;
+            ProductsView.totalPages = totalPages;
+
+            // Slice products for the current page
+            const start = (this.currentPage - 1) * this.itemsPerPage;
+            const paginated = products.slice(start, start + this.itemsPerPage);
+
+            // Update view pagination state and render products
+            ProductsView.currentPage = this.currentPage;
+            ProductsView.renderProducts(paginated, this.cardTemplate);
+
+        } catch (err) {
+            // Handle errors and render empty state
+            console.error('Error fetching products:', err);
+            ProductsView.renderProducts([], this.cardTemplate);
+        }
+    }
+
+    // ---------------------------
+    // Sidebar logic
+    initSidebar() {
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const sidebar = document.getElementById('sidebar-container');
+        const overlay = document.getElementById('overlay');
+
+        // Toggle sidebar open/close
+        sidebarToggle?.addEventListener('click', () => {
+            const isOpen = !sidebar.classList.contains('-translate-x-full');
+            if (!isOpen) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            } else {
+                this.closeSidebar();
+            }
+        });
+
+        // Close sidebar when clicking overlay
+        overlay?.addEventListener('click', () => this.closeSidebar());
+
+        // Handle touch scrolling inside sidebar on mobile
+        let startY = 0;
+        sidebar.addEventListener('touchstart', e => {
+            startY = e.touches[0].clientY;
+        });
+
+        sidebar.addEventListener('touchmove', e => {
+            const deltaY = startY - e.touches[0].clientY;
+            if (
+                (sidebar.scrollTop === 0 && deltaY < 0) ||
+                (sidebar.scrollTop + sidebar.offsetHeight >= sidebar.scrollHeight && deltaY > 0)
+            ) {
+                e.preventDefault();
+            } else {
+                e.stopPropagation();
+            }
+        }, { passive: false });
+    }
+
+    // Close sidebar and restore page scroll
+    closeSidebar() {
+        const sidebar = document.getElementById('sidebar-container');
+        const overlay = document.getElementById('overlay');
+        sidebar.classList.add('-translate-x-full');
+        overlay.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+    // Bind reset filters button
+    bindResetButton() {
+        const resetBtn = document.getElementById('reset-filters');
+        if (!resetBtn) return;
+
+        const minInput = document.getElementById('min-price');
+        const maxInput = document.getElementById('max-price');
+        const sortSelect = document.getElementById('sort-products');
+
+        resetBtn.addEventListener('click', () => {
+            // Reset controller state
+            this.filters = {};
+            this.currentCategory = null;
+            this.sortBy = '';
+            this.currentPage = 1;
+
+            // Reset global store filters
+            ProductActions.resetFilters();
+
+            // Clear UI inputs
+            if (minInput) minInput.value = '';
+            if (maxInput) maxInput.value = '';
+            if (sortSelect) sortSelect.value = '';
+
+            // Reload products and close sidebar
+            this.fetchProducts();
+            this.closeSidebar();
+        });
     }
 }

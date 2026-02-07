@@ -1,7 +1,8 @@
+
+
    /* src/style/base.css */
 
    /* Fonts */
-
    /* Satoshi - Regular */
    @font-face {
        font-family: 'Satoshi';
@@ -18,9 +19,12 @@
        font-style: normal;
    }
 
-   /* Global Defaults */
-
-   body {
-       /* Apply primary font globally */
-       font-family: var(--fprim);
-   }
+  /* Global Body Styles */
+body {
+    background: var(--bg-gradient-main);
+    background-attachment: fixed;
+    color: var(--text-primary);
+    font-family: var(--fprim);
+    transition: background-color 0.3s ease, color 0.3s ease;
+    min-height: 100vh;
+}
