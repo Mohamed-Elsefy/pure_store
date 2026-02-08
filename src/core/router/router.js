@@ -66,11 +66,15 @@ class Router {
          * Extract path from hash
          * Example: "#/home" → "/home"
          */
-        let path = window.location.hash.slice(1);
+        let fullPath = window.location.hash.slice(1); // /product/123
+        let parts = fullPath.split('/').filter(Boolean);
+
+        const basePath = `/${parts[0]}`; // /product
+        const param = parts[1];         // 123
+
 
         // Find matching route configuration
-        const route = ROUTES[path];
-
+        const route = ROUTES[basePath];
         /**
          * Handle unknown routes (404)
          */
@@ -85,7 +89,7 @@ class Router {
              * Derive feature folder name from path
              * Example: "/products" → "products"
              */
-            const featureName = path.replace('/', '');
+            const featureName = basePath.replace('/', '');
 
             /**
              * Dynamically import the controller for the feature
@@ -98,8 +102,10 @@ class Router {
             // Get controller class from imported module
             const ControllerClass = module[route.controller];
 
-            // Create controller instance
-            const controller = new ControllerClass();
+            // Create controller instance and pass id to controller constractor if exist
+            const controller = new ControllerClass({
+                id: param || null
+            });
 
             // Initialize controller logic (fetch data, render UI, etc.)
             await controller.init();

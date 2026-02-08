@@ -5,6 +5,7 @@
 export const ROUTES = {
     '/home': { controller: 'HomeController' },
     '/products': { controller: 'ProductsController' },
+    '/product': { controller: 'ProductDetailsController' },
     '/login': { controller: 'AuthController' },
     '/cart': { controller: 'CartController' }
 };

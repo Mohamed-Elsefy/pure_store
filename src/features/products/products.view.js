@@ -31,6 +31,29 @@ export const ProductsView = {
     },
 
     // -----------------------------
+    // binds click events to each product card so that clicking on the card
+    // (but not on the "Add to Cart" button) navigates to the product's detail page.
+    bindProductClick() {
+        const cards = document.querySelectorAll('.product-card');
+
+        cards.forEach(card => {
+            card.addEventListener('click', (e) => {
+                // Ignore clicks on the "Add to Cart" button inside the card
+                if (e.target.closest('.add-to-cart-btn')) {
+                    return;
+                }
+
+                // Get the product ID stored in the card's data attribute
+                const id = card.dataset.productId;
+
+                // Navigate to the product detail page using hash routing
+                window.location.hash = `#/product/${id}`;
+            });
+        });
+    },
+
+
+    // -----------------------------
     // Render product cards inside the grid
     renderProducts(products, cardTemplate) {
         const grid = document.getElementById('products-grid');
@@ -62,6 +85,9 @@ export const ProductsView = {
 
         // Update pagination controls after rendering products
         this.renderPagination();
+
+        // 
+        this.bindProductClick();
     },
 
     // -----------------------------
