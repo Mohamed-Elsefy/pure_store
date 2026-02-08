@@ -2,18 +2,16 @@
 
 :root {
     --bg-primary: #F9F9F9;
-    --bg-surface: rgba(255, 255, 255, 0.7);
+    --bg-surface: #FCF2F2;
 
-    --bg-gradient-main: radial-gradient(circle at 80% 40%, #f2ebe9 0%, #fef5f5 26%);
+    --bg-gradient-main: radial-gradient(circle at 80% 40%, #d4b5ad 0%, #fef5f5 30%);
 
     --text-primary: #161616;
-    --text-secondary: #555555;
+    --text-secondary: #999;
 
     --accent: #B1402A;
-    --accent-hover: #8E3221;
-    --gold-trim: #C5A059;
 
-    --border-glass: rgba(177, 64, 42, 0.15);
+    --border-glass: rgba(177, 64, 42, 0.3);
     --glass-blur: blur(12px);
 
     --fprim: 'Satoshi', system-ui, sans-serif;
@@ -23,17 +21,14 @@
 /* Dark Mode Overrides */
 html.dark {
     --bg-primary: #161616;
-    --bg-surface: rgba(34, 34, 34, 0.6);
+    --bg-surface: #222222;
 
-    --bg-gradient-main: radial-gradient(circle at 80% 40%, #3d1b14 0%, #161616 26%);
+    --bg-gradient-main: radial-gradient(circle at 80% 40%, #3d1b14 0%, #161616 30%);
 
     --text-primary: #FFFFFF;
     --text-secondary: #A0A0A0;
 
     --accent: #B1402A;
-    --accent-hover: #D64F35;
-    --gold-trim: #D4AF37;
 
     --border-glass: rgba(255, 255, 255, 0.1);
 }
-

@@ -1,6 +1,7 @@
 // src/features/products/products.view.js
 
 import { loadTemplate } from '../../core/utils/template.loader.js';
+import { Spinner } from '../../core/utils/spinner.js';
 
 /**
  * ProductsView
@@ -21,13 +22,6 @@ export const ProductsView = {
         // Load and inject the sidebar template
         const sidebar = await loadTemplate('/src/features/products/partials/sidebar.html');
         document.getElementById('sidebar-container').innerHTML = sidebar;
-
-        // Load the grid only once to avoid removing pagination elements
-        const gridContainer = document.getElementById('products-grid');
-        if (!gridContainer.innerHTML) {
-            const grid = await loadTemplate('/src/features/products/partials/grid.html');
-            gridContainer.innerHTML = grid;
-        }
     },
 
     // -----------------------------
@@ -72,28 +66,30 @@ export const ProductsView = {
 
     // -----------------------------
     // Render categories list and bind click callbacks
+    // داخل products.view.js
+
     renderCategories(categories, handler) {
         const list = document.getElementById('categories-list');
-        if (!list) return;
+        const template = document.getElementById('category-item-template');
 
-        // Keep the first default list item (e.g., "Loading...")
-        const firstLi = list.querySelector('li');
+        if (!list || !template) return;
 
-        // Append fetched categories dynamically
+        list.innerHTML = '';
+
         categories.forEach(cat => {
-            const li = document.createElement('li');
+            const name = cat.name || cat;
+            const slug = cat.slug || cat;
 
-            // Reuse existing styles from the default list item
-            li.className = firstLi.className;
-            li.setAttribute('data-category', cat.slug || cat);
-            li.textContent = cat.name || cat;
+            const clone = template.content.cloneNode(true);
+            const li = clone.querySelector('li');
+            const span = clone.querySelector('.category-name');
 
-            list.appendChild(li);
+            li.setAttribute('data-category', slug);
+            span.textContent = name.charAt(0).toUpperCase() + name.slice(1);
 
-            // Notify controller when a category is selected
-            li.addEventListener('click', () => {
-                handler(cat.slug || cat);
-            });
+            li.addEventListener('click', () => handler(slug));
+
+            list.appendChild(clone);
         });
     },
 
@@ -165,5 +161,21 @@ export const ProductsView = {
         }
 
         this.renderPagination();
+    },
+
+    // -----------------------------
+    // show spinner whene loading 
+    showLoading() {
+        const grid = document.getElementById('products-grid');
+        if (grid) {
+            grid.innerHTML = Spinner();
+        }
+    },
+
+    showCategoriesLoading() {
+        const list = document.getElementById('categories-list');
+        if (list) {
+            list.innerHTML = Spinner();
+        }
     }
 };

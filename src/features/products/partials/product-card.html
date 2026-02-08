@@ -1,45 +1,77 @@
 <!-- src/features/products/partials/product-card.html -->
+<!-- Single product card template used inside the products grid -->
 
-<div class="group relative flex flex-col p-4 transition-all duration-500 hover:-translate-y-3" style="background: var(--bg-surface); 
-            backdrop-filter: var(--glass-blur); 
-            -webkit-backdrop-filter: var(--glass-blur);
-            border: 1px solid var(--border-glass); 
-            border-radius: 24px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.05);">
+<div class="group relative flex flex-col p-4 transition-all duration-500 hover:-translate-y-3
+           bg-(--bg-surface) border border-(--border-glass) rounded-2xl shadow-2xl">
 
-    <div class="relative aspect-3/4 overflow-hidden rounded-2xl mb-5"
-        style="background: rgba(0, 0, 0, 0.03); border: 1px solid rgba(255, 255, 255, 0.05);">
+    <!-- Product image container with fixed aspect ratio -->
+    <div class="relative aspect-3/4 overflow-hidden rounded-2xl mb-5
+               bg-(--text-primary)/7 border border-white/8">
 
-        <img src="{{image}}" alt="{{title}}"
-            class="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform duration-700 ease-out"
-            style="mix-blend-mode: multiply; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));">
+        <!-- Rating badge (top-right corner) -->
+        <div class="absolute top-3 right-3 z-10 flex items-center gap-1.5
+                   px-3 py-1 rounded-full backdrop-blur-xl
+                   bg-(--bg-primary) border border-white/20 shadow-sm">
 
-        <button data-id="{{id}}"
-            class="add-to-cart-btn absolute bottom-3 left-3 right-3 py-3 rounded-xl opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 uppercase text-[10px] tracking-[0.2em] font-black"
-            style="background: var(--accent); color: #FFFFFF; box-shadow: 0 10px 20px rgba(177, 64, 42, 0.3);">
+            <!-- Star icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="var(--accent)"
+                stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27
+                            17 14.14 18.18 21.02
+                            12 17.77 5.82 21.02
+                            7 14.14 2 9.27
+                            8.91 8.26 12 2">
+                </polygon>
+            </svg>
+
+            <!-- Product rating value -->
+            <span class="text-xs">{{rating}}</span>
+        </div>
+
+        <!-- Product image -->
+        <!-- Image scales on hover for visual effect -->
+        <img src="{{image}}" alt="{{title}}" class="w-full h-full object-contain
+                   group-hover:scale-110
+                   transition-transform duration-700 ease-out">
+
+        <!-- Add to cart button -->
+        <!-- Appears on hover and carries product id via data-id -->
+        <button data-id="{{id}}" class="add-to-cart-btn absolute bottom-3 left-3 right-3
+                   py-3 rounded-xl opacity-0 translate-y-4
+                   group-hover:opacity-100 group-hover:translate-y-0
+                   bg-transparent border border-(--accent)
+                   text-(--accent) backdrop-blur-sm
+                   hover:bg-(--accent) hover:text-white
+                   transition-all duration-300
+                   uppercase text-xs font-bold tracking-widest cursor-pointer">
             Add to Cart
         </button>
     </div>
 
-    <div class="space-y-2 px-1">
+    <!-- Product textual information -->
+    <div class="space-y-2 px-2">
+
+        <!-- Brand and category -->
         <div class="flex flex-col gap-1">
-            <p class="text-[9px] uppercase tracking-[0.25em] opacity-60" style="color: var(--text-secondary);">
+            <p class="text-[9px] text-(--text-secondary)
+                       uppercase tracking-widest opacity-70">
                 {{brand}} • {{category}}
             </p>
 
+            <!-- Product title and price -->
             <div class="flex justify-between items-end">
-                <h3 class="text-base font-bold truncate pr-2"
-                    style="font-family: var(--fsecond); color: var(--text-primary); letter-spacing: -0.02em;">
+
+                <!-- Product title (truncated if long) -->
+                <h3 class="text-base font-bold truncate pr-2
+                           text(family-name:--fsecond)">
                     {{title}}
                 </h3>
-                <span class="text-lg font-black" style="color: var(--accent);">
+
+                <!-- Product price -->
+                <span class="text-lg font-extrabold text-(--accent)">
                     ${{price}}
                 </span>
             </div>
-        </div>
-
-        <div class="absolute inset-0 rounded-3xl pointer-events-none transition-opacity duration-500 opacity-0 group-hover:opacity-100"
-            style="background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%); border: 1px solid rgba(255,255,255,0.2);">
         </div>
     </div>
 </div>

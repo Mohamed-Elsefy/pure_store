@@ -38,8 +38,9 @@ export class ProductsController {
         // Render sidebar and grid layout
         await ProductsView.renderLayout();
 
-        // Initialize sidebar behavior and reset button
+        // Initialize sidebar behavior 
         this.initSidebar();
+        this.initSortDropdown();
         this.bindResetButton();
 
         // Load product card template and categories in parallel
@@ -55,6 +56,7 @@ export class ProductsController {
             this.currentPage = 1;
             this.fetchProducts();
             this.closeSidebar();
+            this.updateActiveCategoryUI(category);
         });
 
         // Bind price filters (with delayed sidebar close)
@@ -97,6 +99,9 @@ export class ProductsController {
 
     async fetchProducts() {
         try {
+            // start with spinner 
+            ProductsView.showLoading();
+
             // Fetch all products (no backend pagination)
             let result = this.currentCategory
                 ? await ProductService.getProductsByCategory(this.currentCategory, { page: 1, limit: 0 })
@@ -155,9 +160,9 @@ export class ProductsController {
 
         // Toggle sidebar open/close
         sidebarToggle?.addEventListener('click', () => {
-            const isOpen = !sidebar.classList.contains('-translate-x-full');
-            if (!isOpen) {
-                sidebar.classList.remove('-translate-x-full');
+            const isHidden = sidebar.classList.contains('-translate-x-[120%]');
+            if (isHidden) {
+                sidebar.classList.remove('-translate-x-[120%]');
                 overlay.classList.remove('hidden');
                 document.body.style.overflow = 'hidden';
             } else {
@@ -191,7 +196,7 @@ export class ProductsController {
     closeSidebar() {
         const sidebar = document.getElementById('sidebar-container');
         const overlay = document.getElementById('overlay');
-        sidebar.classList.add('-translate-x-full');
+        sidebar.classList.add('-translate-x-[120%]');
         overlay.classList.add('hidden');
         document.body.style.overflow = '';
     }
@@ -199,6 +204,7 @@ export class ProductsController {
     // Bind reset filters button
     bindResetButton() {
         const resetBtn = document.getElementById('reset-filters');
+        const sortLabel = document.getElementById('selected-sort-label');
         if (!resetBtn) return;
 
         const minInput = document.getElementById('min-price');
@@ -213,16 +219,95 @@ export class ProductsController {
             this.currentPage = 1;
 
             // Reset global store filters
-            ProductActions.resetFilters();
+            if (sortLabel) sortLabel.textContent = 'Default Selection';
 
             // Clear UI inputs
             if (minInput) minInput.value = '';
             if (maxInput) maxInput.value = '';
-            if (sortSelect) sortSelect.value = '';
+
+            // reset categories ui
+            this.updateActiveCategoryUI(null);
 
             // Reload products and close sidebar
             this.fetchProducts();
             this.closeSidebar();
         });
+    }
+
+    // active category
+    updateActiveCategoryUI(selectedCategory) {
+        const items = document.querySelectorAll('.category-item');
+        items.forEach(item => {
+            const itemCat = item.getAttribute('data-category');
+
+            if (itemCat === selectedCategory) {
+                item.classList.add('active-category');
+            } else {
+                item.classList.remove('active-category');
+            }
+        });
+    }
+
+    // sort by drop down menu
+    initSortDropdown() {
+        const trigger = document.getElementById('dropdown-trigger');
+        const menu = document.getElementById('dropdown-menu');
+        const label = document.getElementById('selected-sort-label');
+        const options = document.querySelectorAll('.sort-option');
+        const svg = trigger?.querySelector('svg');
+
+        if (!trigger || !menu) return;
+
+        // open, close menu
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+
+            const isHidden = menu.classList.contains('hidden');
+
+            if (isHidden) {
+                menu.classList.remove('hidden');
+                setTimeout(() => {
+                    menu.classList.remove('opacity-0', 'scale-95');
+                    menu.classList.add('opacity-100', 'scale-100');
+                }, 10);
+                svg?.classList.add('rotate-180');
+            } else {
+                this.closeSortMenu(menu, svg);
+            }
+        });
+
+        // select chose from menu
+        options.forEach(option => {
+            option.addEventListener('click', (e) => {
+                e.stopPropagation();
+
+                const value = option.getAttribute('data-value');
+                if (label) label.textContent = option.textContent;
+
+                this.sortBy = value;
+                this.currentPage = 1;
+                this.fetchProducts();
+
+                this.closeSortMenu(menu, svg);
+            });
+        });
+
+        // close menu whene select item
+        document.addEventListener('click', () => {
+            this.closeSortMenu(menu, svg);
+        });
+    }
+
+    // close sort by menu
+    closeSortMenu(menu, svg) {
+        if (!menu.classList.contains('hidden')) {
+            menu.classList.add('opacity-0', 'scale-95');
+            menu.classList.remove('opacity-100', 'scale-100');
+            svg?.classList.remove('rotate-180');
+
+            setTimeout(() => {
+                menu.classList.add('hidden');
+            }, 200);
+        }
     }
 }
