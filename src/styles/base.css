@@ -1,26 +1,106 @@
-   /* src/style/base.css */
+/* src/style/base.css */
 
-   /* Fonts */
+/* ===================== Fonts ===================== */
 
-   /* Satoshi - Regular */
-   @font-face {
-       font-family: 'Satoshi';
-       src: url('../fonts/Satoshi-Regular.woff2') format('woff2');
-       font-weight: 400;
-       font-style: normal;
-   }
+/* Satoshi font – Regular weight */
+@font-face {
+    font-family: 'Satoshi';
+    src: url('../fonts/Satoshi-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+}
 
-   /* Montserrat - Bold */
-   @font-face {
-       font-family: 'Montserrat';
-       src: url('../fonts/Montserrat-Bold.ttf') format('truetype');
-       font-weight: 700;
-       font-style: normal;
-   }
+/* Montserrat font – Bold weight */
+@font-face {
+    font-family: 'Montserrat';
+    src: url('../fonts/Montserrat-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+}
 
-   /* Global Defaults */
+/* ===================== Global Body Styles ===================== */
 
-   body {
-       /* Apply primary font globally */
-       font-family: var(--fprim);
-   }
+/* Main body styling:
+   - Uses gradient background
+   - Fixed background for smooth scrolling
+   - Default text color and font
+   - Smooth transition when theme colors change */
+body {
+    background: var(--bg-gradient-main);
+    background-attachment: fixed;
+    color: var(--text-primary);
+    font-family: var(--fprim);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ===================== Sidebar Scrollbar Customization ===================== */
+
+/* Hide the scrollbar arrows (top & bottom buttons) in WebKit browsers */
+#sidebar-container::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+/* Customize scrollbar width */
+#sidebar-container::-webkit-scrollbar {
+    width: 4px;
+    /* Thin scrollbar */
+}
+
+/* Style the draggable scrollbar thumb */
+#sidebar-container::-webkit-scrollbar-thumb {
+    background-color: var(--accent);
+    /* Accent color */
+    border-radius: 100px;
+    /* Fully rounded edges */
+}
+
+/* Style the scrollbar track (background) */
+#sidebar-container::-webkit-scrollbar-track {
+    background: transparent;
+    /* Fully transparent track */
+    margin: 20px 10px;
+    /* Spacing to respect rounded container edges */
+}
+
+/* ===================== Sort Dropdown Styling ===================== */
+
+/* Style individual options inside the sort select menu */
+#sort-products option {
+    background-color: var(--bg-surface);
+    /* Match sidebar background */
+    color: var(--text-primary);
+    padding: 10px;
+    /* Improves spacing (browser dependent) */
+    font-family: var(--fprim);
+}
+
+/* Improve overall appearance of the select element */
+#sort-products {
+    border-radius: 1rem;
+    /* Rounded corners in modern browsers */
+}
+
+/* ===================== Category Active State ===================== */
+
+/* Active category item styling
+   - Matches hover appearance
+   - Visually highlights selected category */
+.category-item.active-category {
+    background-color: var(--bg-surface);
+    backdrop-filter: blur(4px);
+    border-color: var(--accent);
+}
+
+/* Always show the indicator dot for the active category */
+.category-item.active-category div {
+    transform: scale(1);
+}
+
+/* Slight text shift and accent color for active category */
+.category-item.active-category span {
+    transform: translateX(4px);
+    color: var(--accent) !important;
+    /* Optional emphasis */
+}

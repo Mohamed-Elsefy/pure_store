@@ -16,6 +16,12 @@ class Store {
             cart: [],                           // Shopping cart items
             products: [],                       // Products list
             categories: [],                     // Product categories
+            searchQuery: '',                    // search from navbar
+            filters: {
+                category: null,
+                minPrice: 0,                    // price filter start
+                maxPrice: Infinity,             // price filter end
+            },
             theme: localStorage.getItem('theme') || 'light', // UI theme
             loading: false                      // Global loading indicator
         };

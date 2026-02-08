@@ -1,37 +1,64 @@
 <!-- Products Page Template -->
- 
-<section class="p-6">
 
-    <!-- Header / Title -->
-    <div class="flex items-center justify-between mb-10">
-        <h2 class="text-3xl font-bold">Catalog</h2>
-        <!-- Back to Home link -->
-        <a href="/home" data-link class="text-blue-600 hover:underline">← Back Home</a>
-    </div>
+<!-- Mobile sidebar toggle button -->
+<!-- Visible only on small screens (md:hidden) -->
+<button id="sidebar-toggle" class="md:hidden sticky top-4 z-10 py-2 px-3 ml-5 mt-3 rounded-full shadow-2xl
+           text-(--accent) bg-(--bg-primary) border border-(--accent)">
+    ☰
+</button>
 
-    <!-- Products Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+<div class="flex min-h-screen gap-4">
 
-        <!-- Product Card Example -->
-        <div class="border dark:border-gray-700 p-6 rounded-2xl bg-white dark:bg-gray-800 text-center">
-            <!-- Image Placeholder -->
-            <div class="w-full h-40 bg-gray-200 dark:bg-gray-700 rounded-xl mb-4 flex items-center justify-center text-gray-400">
-                Image Placeholder
+    <!-- Sidebar container -->
+    <!-- Fixed on mobile, sticky on desktop -->
+    <!-- Hidden off-canvas on mobile using transform -->
+    <aside id="sidebar-container" class="fixed top-6 left-4 bottom-6 w-72 backdrop-blur-[20px]
+               transform -translate-x-[120%] md:translate-x-0
+               transition-all duration-500 z-30 md:sticky
+               p-8 overflow-y-auto bg-(--bg-surface)
+               border rounded-3xl border-(--border-glass)
+               shadow-md max-h-screen">
+        <!-- Sidebar content is injected dynamically via JS -->
+    </aside>
+
+    <!-- Main content area -->
+    <main id="grid-container" class="flex-1 p-4">
+
+        <!-- Products grid wrapper -->
+        <main class="flex-1 p-4">
+            <!-- Grid where product cards are rendered -->
+            <div id="products-grid" class="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3
+                       gap-x-6 gap-y-12">
+                <!-- Product cards are injected here -->
             </div>
-            <!-- Product Name -->
-            <h3 class="font-bold text-xl mb-2">Sample Product</h3>
-            <!-- Product Price -->
-            <p class="text-blue-600 font-bold">$99.99</p>
-        </div>
+        </main>
 
-        <!-- Another Product Card Example -->
-        <div class="border dark:border-gray-700 p-6 rounded-2xl bg-white dark:bg-gray-800 text-center">
-            <div class="w-full h-40 bg-gray-200 dark:bg-gray-700 rounded-xl mb-4 flex items-center justify-center text-gray-400">
-                Image Placeholder
-            </div>
-            <h3 class="font-bold text-xl mb-2">Another Item</h3>
-            <p class="text-blue-600 font-bold">$45.00</p>
-        </div>
+        <!-- Fixed pagination controls -->
+        <div id="pagination-wrapper" class="flex justify-center items-center gap-4 mt-6">
 
-    </div>
-</section>
+            <!-- Previous page button -->
+            <button id="pagination-prev" class="px-4 py-2 border rounded border-(--accent)
+                       text-(--accent) transition
+                       hover:-translate-y-0.5 hover:shadow-lg duration-300">
+                Previous
+            </button>
+
+            <!-- Current page indicator -->
+            <span id="pagination-info" class="px-2 text-sm text-(--text-secondary)">
+                Page 1 of 1
+            </span>
+
+            <!-- Next page button -->
+            <button id="pagination-next" class="px-4 py-2 border rounded border-(--accent)
+                       text-(--accent) transition
+                       hover:-translate-y-0.5 hover:shadow-lg duration-300">
+                Next
+            </button>
+        </div>
+    </main>
+</div>
+
+<!-- Overlay background -->
+<!-- Shown when sidebar is open on mobile to block interactions -->
+<div id="overlay" class="fixed inset-0 bg-black opacity-40 hidden z-20 md:hidden">
+</div>
