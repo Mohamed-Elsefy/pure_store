@@ -3,6 +3,7 @@
 import './core/router/router.js';
 import { renderNavbar } from './layouts/navbar.js';
 import { renderFooter } from './layouts/footer.js';
+import { UIActions } from './core/store/actions.js';
 
 
 // Application bootstrap function
@@ -10,5 +11,6 @@ import { renderFooter } from './layouts/footer.js';
 const bootstrap = async () => {
     await renderNavbar();
     await renderFooter();
+    UIActions.initTheme();
 };
 bootstrap();

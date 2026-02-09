@@ -2,6 +2,7 @@
 
 // Import the global store instance
 import store from './store.js';
+import { Storage } from '../utils/storage.js';
 
 /**
  * Actions
@@ -86,37 +87,59 @@ export const CartActions = {
 export const UIActions = {
     /**
      * Initialize theme on app startup
-     * Applies the stored theme to the HTML root element
+     * - Reads from Storage first
+     * - Falls back to prefers-color-scheme
+     * - Saves value in store and Storage
+     * - Applies class to <html>
      */
     initTheme: () => {
-        const { theme } = store.getState();
+        let theme = Storage.get('theme');
 
-        // Apply dark mode class based on saved theme
-        document.documentElement.classList.toggle(
-            'dark',
-            theme === 'dark'
-        );
+        if (!theme) {
+            // Fallback to system preference
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            theme = prefersDark ? 'dark' : 'light';
+            Storage.set('theme', theme);
+        }
+
+        // Update store
+        store.setState({ theme });
+
+        // Apply dark class to HTML root
+        document.documentElement.classList.toggle('dark', theme === 'dark');
+
+        // Update Navbar icon if exists
+        const icon = document.querySelector('#theme-toggle i');
+        if (icon) {
+            icon.classList.toggle('fa-moon', theme === 'dark');
+            icon.classList.toggle('fa-sun', theme === 'light');
+        }
     },
+
 
     /**
      * Toggle between light and dark theme
-     * Updates store, DOM, and localStorage
+     * - Updates store, DOM, and Storage
      */
     toggleTheme: () => {
         const { theme } = store.getState();
         const newTheme = theme === 'light' ? 'dark' : 'light';
 
-        // 1. Update global state
+        // Update store
         store.setState({ theme: newTheme });
 
-        // 2. Update DOM (HTML root class)
-        document.documentElement.classList.toggle(
-            'dark',
-            newTheme === 'dark'
-        );
+        // Update DOM
+        document.documentElement.classList.toggle('dark', newTheme === 'dark');
 
-        // 3. Persist theme preference
-        localStorage.setItem('theme', newTheme);
+        // Persist using Storage
+        Storage.set('theme', newTheme);
+
+        // Update Navbar icon if exists
+        const icon = document.querySelector('#theme-toggle i');
+        if (icon) {
+            icon.classList.toggle('fa-moon', newTheme === 'dark');
+            icon.classList.toggle('fa-sun', newTheme === 'light');
+        }
     }
 };
 
