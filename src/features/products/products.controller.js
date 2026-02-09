@@ -26,6 +26,9 @@ export class ProductsController {
             maxPrice: store.getState().filters.maxPrice ?? Infinity
         };
 
+        // search from navbar
+        this.searchQuery = store.getState().searchQuery;
+
         // Current sort option from store
         this.sortBy = store.getState().filters.sortBy || '';
 
@@ -90,6 +93,15 @@ export class ProductsController {
             this._closeSidebarTimeout = setTimeout(() => this.closeSidebar(), 800);
         });
 
+        // subscrib search
+        this._unsubscribeSearch = store.subscribe((state) => {
+            if (state.searchQuery !== this.searchQuery) {
+                this.searchQuery = state.searchQuery;
+                this.currentPage = 1;
+                this.fetchProducts();
+            }
+        });
+
         // Bind pagination previous button
         document.getElementById('pagination-prev')?.addEventListener('click', () => {
             if (this.currentPage > 1) {
@@ -123,6 +135,18 @@ export class ProductsController {
                 : await ProductService.getAllProducts({ page: 1, limit: 0 });
 
             let products = result.products;
+
+            // Apply search query filter
+            if (this.searchQuery) {
+                const q = this.searchQuery.toLowerCase();
+
+                products = products.filter(p =>
+                    p.title?.toLowerCase().includes(q) ||
+                    p.brand?.toLowerCase().includes(q) ||
+                    p.category?.toLowerCase().includes(q)
+                );
+            }
+
 
             // Apply min/max price filters
             const { minPrice, maxPrice } = this.filters;
@@ -211,10 +235,11 @@ export class ProductsController {
     bindResetButton() {
         const resetBtn = document.getElementById('reset-filters');
         const sortLabel = document.getElementById('selected-sort-label');
-        if (!resetBtn) return;
-
+        const searchInput = document.getElementById('search-input');
         const minInput = document.getElementById('min-price');
         const maxInput = document.getElementById('max-price');
+
+        if (!resetBtn) return;
 
         resetBtn.addEventListener('click', () => {
             // Reset controller state
@@ -230,6 +255,7 @@ export class ProductsController {
             if (sortLabel) sortLabel.textContent = 'Default Selection';
             if (minInput) minInput.value = '';
             if (maxInput) maxInput.value = '';
+            if (searchInput) searchInput.value = '';
 
             // Reset active category UI
             this.updateActiveCategoryUI(null);

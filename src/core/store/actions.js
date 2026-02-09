@@ -3,6 +3,7 @@
 // Import the global store instance
 import store from './store.js';
 import { Storage } from '../utils/storage.js';
+import {ProductService} from '../services/product.service.js'
 
 /**
  * Actions
@@ -151,8 +152,23 @@ export const ProductActions = {
      *
      * @param {string} query - The search text entered by the user.
      */
-    setSearchQuery: (query) => {
+    setSearchQuery: async (query) => {
         store.setState({ searchQuery: query });
+
+        if (!query) {
+            // if field empty remove search results
+            store.setState({ searchResults: [] });
+            return;
+        }
+
+        // start search
+        try {
+            const results = await ProductService.searchProducts(query);
+            store.setState({ searchResults: results });
+        } catch (error) {
+            console.error('Search Error:', error);
+            store.setState({ searchResults: [] });
+        }
     },
 
     /**
@@ -179,6 +195,7 @@ export const ProductActions = {
     resetFilters: () => {
         store.setState({
             searchQuery: '',
+            searchResults: [],
             filters: {
                 category: null,
                 minPrice: 0,

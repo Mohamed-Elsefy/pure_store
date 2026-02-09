@@ -51,16 +51,30 @@
 
             <!-- Search input -->
             <div
-                class="group relative flex items-center w-20 focus-within:w-40 md:w-48 md:focus-within:w-48 lg:w-60 lg:focus-within:w-60 transition-all duration-300 ease-out">
+                class="group relative flex items-center w-20 focus-within:w-32 sm:w-44 sm:focus-within:w-44 md:w-52 md:focus-within:w-52 lg:w-72 lg:focus-within:w-72 transition-all duration-300 ease-out">
 
-                <input type="text" placeholder="Search..."
+                <!-- input field -->
+                <input id="search-input" type="text" placeholder="Search..."
                     class="w-full h-8 md:h-10 pl-9 pr-3 rounded-full bg-(--bg-primary) backdrop-blur text-xs md:text-sm text-(--text-primary)
-                placeholder:text-(--text-secondary) border border-transparent focus:border-(--accent) focus:outline-none transition-all duration-300" />
+                        placeholder:text-(--text-secondary) border border-transparent focus:border-(--accent) focus:outline-none transition-all duration-300" />
 
                 <i
-                    class="fa-solid fa-magnifying-glass absolute left-3 text-(--text-secondary) pointer-events-none  group-focus-within:text-(--accent) transition-colors">
-                </i>
+                    class="fa-solid fa-magnifying-glass absolute left-3 text-(--text-secondary) pointer-events-none  group-focus-within:text-(--accent) transition-colors"></i>
+
+                <!-- Dropdown container for search results -->
+                <ul id="search-results" class="absolute left-0 right-0 top-full mt-1 py-2 hidden flex-col border border-(--border-glass) rounded-2xl shadow-2xl z-50 bg-(--bg-surface)
+                    overflow-hidden transform origin-top transition-all duration-300">
+                    <!-- Template for a single search result -->
+                    <template id="search-result-template">
+                        <li class="search-item px-5 py-3 text-sm hover:bg-(--accent)/10 cursor-pointer transition-colors flex items-center gap-2"
+                            data-id="">
+                            <span class="product-title"></span>
+                        </li>
+                    </template>
+                </ul>
+
             </div>
+
 
             <!-- Theme toggle button -->
             <button id="theme-toggle"
