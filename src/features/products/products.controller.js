@@ -259,7 +259,7 @@ export class ProductsController {
         const menu = document.getElementById('dropdown-menu');
         const label = document.getElementById('selected-sort-label');
         const options = document.querySelectorAll('.sort-option');
-        const svg = trigger?.querySelector('svg');
+        const icon = trigger?.querySelector('i');
         if (!trigger || !menu) return;
 
         // Open/close dropdown menu
@@ -270,8 +270,8 @@ export class ProductsController {
                 menu.classList.remove('hidden');
                 setTimeout(() => menu.classList.remove('opacity-0', 'scale-95'), 10);
                 menu.classList.add('opacity-100', 'scale-100');
-                svg?.classList.add('rotate-180');
-            } else this.closeSortMenu(menu, svg);
+                icon?.classList.add('rotate-180');
+            } else this.closeSortMenu(menu, icon);
         });
 
         // Handle selecting a sort option
@@ -289,20 +289,20 @@ export class ProductsController {
 
                 // Fetch products with new sort
                 this.fetchProducts();
-                this.closeSortMenu(menu, svg);
+                this.closeSortMenu(menu, icon);
             });
         });
 
         // Close dropdown when clicking outside
-        document.addEventListener('click', () => this.closeSortMenu(menu, svg));
+        document.addEventListener('click', () => this.closeSortMenu(menu, icon));
     }
 
     // Close sort menu helper
-    closeSortMenu(menu, svg) {
+    closeSortMenu(menu, iocn) {
         if (!menu.classList.contains('hidden')) {
             menu.classList.add('opacity-0', 'scale-95');
             menu.classList.remove('opacity-100', 'scale-100');
-            svg?.classList.remove('rotate-180');
+            iocn?.classList.remove('rotate-180');
             setTimeout(() => menu.classList.add('hidden'), 200);
         }
     }
