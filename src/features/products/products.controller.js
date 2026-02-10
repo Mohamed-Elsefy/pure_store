@@ -26,6 +26,9 @@ export class ProductsController {
             maxPrice: store.getState().filters.maxPrice ?? Infinity
         };
 
+        // search from navbar
+        this.searchQuery = store.getState().searchQuery;
+
         // Current sort option from store
         this.sortBy = store.getState().filters.sortBy || '';
 
@@ -90,6 +93,15 @@ export class ProductsController {
             this._closeSidebarTimeout = setTimeout(() => this.closeSidebar(), 800);
         });
 
+        // subscrib search
+        this._unsubscribeSearch = store.subscribe((state) => {
+            if (state.searchQuery !== this.searchQuery) {
+                this.searchQuery = state.searchQuery;
+                this.currentPage = 1;
+                this.fetchProducts();
+            }
+        });
+
         // Bind pagination previous button
         document.getElementById('pagination-prev')?.addEventListener('click', () => {
             if (this.currentPage > 1) {
@@ -123,6 +135,18 @@ export class ProductsController {
                 : await ProductService.getAllProducts({ page: 1, limit: 0 });
 
             let products = result.products;
+
+            // Apply search query filter
+            if (this.searchQuery) {
+                const q = this.searchQuery.toLowerCase();
+
+                products = products.filter(p =>
+                    p.title?.toLowerCase().includes(q) ||
+                    p.brand?.toLowerCase().includes(q) ||
+                    p.category?.toLowerCase().includes(q)
+                );
+            }
+
 
             // Apply min/max price filters
             const { minPrice, maxPrice } = this.filters;
@@ -211,10 +235,11 @@ export class ProductsController {
     bindResetButton() {
         const resetBtn = document.getElementById('reset-filters');
         const sortLabel = document.getElementById('selected-sort-label');
-        if (!resetBtn) return;
-
+        const searchInput = document.getElementById('search-input');
         const minInput = document.getElementById('min-price');
         const maxInput = document.getElementById('max-price');
+
+        if (!resetBtn) return;
 
         resetBtn.addEventListener('click', () => {
             // Reset controller state
@@ -230,6 +255,7 @@ export class ProductsController {
             if (sortLabel) sortLabel.textContent = 'Default Selection';
             if (minInput) minInput.value = '';
             if (maxInput) maxInput.value = '';
+            if (searchInput) searchInput.value = '';
 
             // Reset active category UI
             this.updateActiveCategoryUI(null);
@@ -259,7 +285,7 @@ export class ProductsController {
         const menu = document.getElementById('dropdown-menu');
         const label = document.getElementById('selected-sort-label');
         const options = document.querySelectorAll('.sort-option');
-        const svg = trigger?.querySelector('svg');
+        const icon = trigger?.querySelector('i');
         if (!trigger || !menu) return;
 
         // Open/close dropdown menu
@@ -270,8 +296,8 @@ export class ProductsController {
                 menu.classList.remove('hidden');
                 setTimeout(() => menu.classList.remove('opacity-0', 'scale-95'), 10);
                 menu.classList.add('opacity-100', 'scale-100');
-                svg?.classList.add('rotate-180');
-            } else this.closeSortMenu(menu, svg);
+                icon?.classList.add('rotate-180');
+            } else this.closeSortMenu(menu, icon);
         });
 
         // Handle selecting a sort option
@@ -289,20 +315,20 @@ export class ProductsController {
 
                 // Fetch products with new sort
                 this.fetchProducts();
-                this.closeSortMenu(menu, svg);
+                this.closeSortMenu(menu, icon);
             });
         });
 
         // Close dropdown when clicking outside
-        document.addEventListener('click', () => this.closeSortMenu(menu, svg));
+        document.addEventListener('click', () => this.closeSortMenu(menu, icon));
     }
 
     // Close sort menu helper
-    closeSortMenu(menu, svg) {
+    closeSortMenu(menu, iocn) {
         if (!menu.classList.contains('hidden')) {
             menu.classList.add('opacity-0', 'scale-95');
             menu.classList.remove('opacity-100', 'scale-100');
-            svg?.classList.remove('rotate-180');
+            iocn?.classList.remove('rotate-180');
             setTimeout(() => menu.classList.add('hidden'), 200);
         }
     }

@@ -1,16 +1,99 @@
-<!-- Navbar Template -->
- 
-<nav class="bg-white dark:bg-gray-900 shadow px-6 py-4 flex justify-between items-center mb-4">
+<!-- layouts/navbar.template.html -->
 
-    <!-- Logo / Home Link -->
-    <a href="/home" data-link class="text-xl font-bold text-blue-600">
-        PureJS Store
-    </a>
+<!-- Main navigation bar -->
+<nav class="fixed top-0 w-full z-40 bg-(--bg-surface)/70 backdrop-blur-sm shadow-md rounded-b-3xl ">
 
-    <!-- Navigation Links -->
-    <div class="space-x-6">
-        <a href="/products" data-link class="hover:text-blue-500">Products</a>
-        <a href="/cart" data-link class="hover:text-blue-500">Cart</a>
-        <a href="/login" data-link class="hover:text-blue-500">Login</a>
+    <div class="flex items-center justify-between px-6 py-4">
+
+        <!-- Logo -->
+        <a href="/home" data-link
+            class="font-extrabold text-(--accent) font-(family-name:--fsecond) tracking-tight text-2xl sm:text-3xl lg:text-4xl hover:opacity-80 transition-opacity">
+            PureStore
+        </a>
+
+        <!-- Navigation Links (desktop + mobile) -->
+        <div id="nav-links"
+            class=" absolute top-20 right-4 w-1/3 flex flex-col items-center gap-4 bg-(--bg-surface)/95 backdrop-blur-md shadow-lg rounded-2xl py-4 transition-all duration-300 opacity-0 -translate-y-4 pointer-events-none 
+             md:static md:flex md:flex-row md:gap-8 md:w-auto md:bg-transparent md:shadow-none md:py-0 md:rounded-none md:opacity-100 md:translate-y-0 md:pointer-events-auto md:backdrop-blur-none">
+
+            <!-- Home link -->
+            <a href="/home" data-link
+                class="nav-link relative text-sm font-bold transition-colors duration-300 after:absolute after:left-0 after:-bottom-1 after:w-full after:h-0.5
+                after:bg-(--accent) after:rounded-full after:origin-left after:scale-x-0 after:transition-transform after:duration-300 hover:after:scale-x-100 hover:text-(--accent)">
+                Home
+            </a>
+
+            <!-- Products link -->
+            <a href="/products" data-link
+                class="nav-link relative text-sm font-bold transition-colors duration-300 after:absolute after:left-0 after:-bottom-1 after:w-full after:h-0.5
+                after:bg-(--accent) after:rounded-full after:origin-left after:scale-x-0 after:transition-transform after:duration-300 hover:after:scale-x-100 hover:text-(--accent)">
+                Products
+            </a>
+
+            <!-- Cart link -->
+            <a href="/cart" data-link
+                class="nav-link relative text-sm font-bold transition-colors duration-300 after:absolute after:left-0 after:-bottom-1 after:w-full after:h-0.5
+                after:bg-(--accent) after:rounded-full after:origin-left after:scale-x-0 after:transition-transform after:duration-300 hover:after:scale-x-100 hover:text-(--accent)">
+                Cart
+            </a>
+
+            <!-- Login link -->
+            <a href="/login" data-link
+                class="nav-link relative text-sm font-bold transition-colors duration-300 after:absolute after:left-0 after:-bottom-1 after:w-full after:h-0.5
+                after:bg-(--accent) after:rounded-full after:origin-left after:scale-x-0 after:transition-transform after:duration-300 hover:after:scale-x-100 hover:text-(--accent)">
+                Login
+            </a>
+
+        </div>
+
+        <!-- Right-side icons -->
+        <div class="flex items-center gap-2 z-50">
+
+            <!-- Search input -->
+            <div
+                class="group relative flex items-center w-20 focus-within:w-32 sm:w-44 sm:focus-within:w-44 md:w-52 md:focus-within:w-52 lg:w-72 lg:focus-within:w-72 transition-all duration-300 ease-out">
+
+                <!-- input field -->
+                <input id="search-input" type="text" placeholder="Search..."
+                    class="w-full h-8 md:h-10 pl-9 pr-3 rounded-full bg-(--bg-primary) backdrop-blur text-xs md:text-sm text-(--text-primary)
+                        placeholder:text-(--text-secondary) border border-transparent focus:border-(--accent) focus:outline-none transition-all duration-300" />
+
+                <i
+                    class="fa-solid fa-magnifying-glass absolute left-3 text-(--text-secondary) pointer-events-none  group-focus-within:text-(--accent) transition-colors"></i>
+
+                <!-- Dropdown container for search results -->
+                <ul id="search-results" class="absolute left-0 right-0 top-full mt-1 py-2 hidden flex-col border border-(--border-glass) rounded-2xl shadow-2xl z-50 bg-(--bg-surface)
+                    overflow-hidden transform origin-top transition-all duration-300">
+                    <!-- Template for a single search result -->
+                    <template id="search-result-template">
+                        <li class="search-item px-5 py-3 text-sm hover:bg-(--accent)/10 cursor-pointer transition-colors flex items-center gap-2"
+                            data-id="">
+                            <span class="product-title"></span>
+                        </li>
+                    </template>
+                </ul>
+
+            </div>
+
+
+            <!-- Theme toggle button -->
+            <button id="theme-toggle"
+                class="group relative flex items-center justify-center w-9 h-9 md:w-10 md:h-10 rounded-full bg-(--bg-primary)/60 backdrop-blur
+                border border-(--border-glass) hover:border-(--accent) hover:shadow-(--border-glass) transition-all duration-300 cursor-pointer">
+
+                <!-- teme icon -->
+                <i
+                    class="fa-regular fa-sun text-sm md:text-base text-(--text-secondary) group-hover:text-(--accent) transition-colors duration-300">
+                </i>
+            </button>
+
+            <!-- Mobile menu toggle button -->
+            <button id="mobile-menu-toggle"
+                class="md:hidden p-2 rounded-full cursor-pointer hover:bg-(--bg-surface)/50 transition-colors">
+                <i class="fa-solid fa-bars-staggered text-xl"></i>
+            </button>
+
+        </div>
+
     </div>
 </nav>

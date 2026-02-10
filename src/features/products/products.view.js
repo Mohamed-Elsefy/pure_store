@@ -92,8 +92,6 @@ export const ProductsView = {
 
     // -----------------------------
     // Render categories list and bind click callbacks
-    // داخل products.view.js
-
     renderCategories(categories, handler) {
         const list = document.getElementById('categories-list');
         const template = document.getElementById('category-item-template');

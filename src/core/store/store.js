@@ -17,8 +17,9 @@ class Store {
             products: [],                       // Products list
             categories: [],                     // Product categories
             searchQuery: '',                    // search from navbar
+            searchResults: [],                  // search results
             filters: {
-                category: null,
+                category: null,                 // category filter
                 minPrice: 0,                    // price filter start
                 maxPrice: Infinity,             // price filter end
             },
