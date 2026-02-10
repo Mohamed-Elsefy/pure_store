@@ -53,9 +53,14 @@ const setupNavbarInteractions = () => {
     const resultsContainer = document.getElementById('search-results'); // Search results list
     const template = document.getElementById('search-result-template'); // Search result template
 
-    /**
-     * Close search results when clicking outside
-     */
+    // Sync input with store on render
+    const { searchQuery } = store.getState();
+    if (!searchQuery) {
+        searchInput.value = '';
+        ProductActions.setSearchQuery('');
+    }
+
+    // Close search results when clicking outside
     document.addEventListener('pointerdown', (e) => {
         const isInsideSearch =
             searchInput.contains(e.target) ||
@@ -69,9 +74,7 @@ const setupNavbarInteractions = () => {
         }
     });
 
-    /**
-     * Search logic and store subscription
-     */
+    // Search logic and store subscription
     if (searchInput && resultsContainer) {
 
         // Subscribe to store updates
@@ -101,6 +104,7 @@ const setupNavbarInteractions = () => {
 
                 // Navigate to product details on click
                 li.addEventListener('click', () => {
+                    ProductActions.setSearchQuery('');
                     window.location.hash = `/product/${product.id}`;
                     document.getElementById('search-input').value = '';
                     resultsContainer.classList.add('hidden');
@@ -113,17 +117,23 @@ const setupNavbarInteractions = () => {
             resultsContainer.classList.remove('hidden');
         });
 
-        /**
-         * Dispatch search query on input
-         */
+        // Dispatch search query on input
         searchInput.addEventListener('input', (e) => {
             const query = e.target.value.trim();
             ProductActions.setSearchQuery(query);
         });
 
         /**
-         * Navigate to first result when pressing Enter
+         * reset filters
          */
+        searchInput.addEventListener('blur', () => {
+            if (searchInput.value.trim() === '') {
+                ProductActions.setSearchQuery('');
+            }
+        });
+
+
+        // Navigate to first result when pressing Enter
         searchInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 const firstResult = resultsContainer.querySelector('li');
@@ -136,9 +146,7 @@ const setupNavbarInteractions = () => {
             }
         });
 
-        /**
-         * Navigate when clicking a search result
-         */
+        // Navigate when clicking a search result
         resultsContainer.addEventListener('click', (e) => {
             const li = e.target.closest('li');
             if (!li) return;
@@ -153,9 +161,7 @@ const setupNavbarInteractions = () => {
     // Exit if mobile toggle or nav links are missing
     if (!toggleBtn || !navLinks) return;
 
-    /**
-     * Toggle mobile navigation menu visibility
-     */
+    // Toggle mobile navigation menu visibility
     toggleBtn.addEventListener('click', () => {
         navLinks.classList.toggle('opacity-100');         // Show
         navLinks.classList.toggle('translate-y-0');       // Reset translate
@@ -166,9 +172,7 @@ const setupNavbarInteractions = () => {
         navLinks.classList.toggle('pointer-events-none'); // Disable clicks
     });
 
-    /**
-     * Close mobile menu when a link is clicked
-     */
+    // Close mobile menu when a link is clicked
     navLinks.querySelectorAll('a').forEach(link => {
         link.addEventListener('click', () => {
             if (window.innerWidth < 768) {
@@ -186,9 +190,7 @@ const setupNavbarInteractions = () => {
         });
     });
 
-    /**
-     * Bind theme toggle button to UI action
-     */
+    // Bind theme toggle button to UI action
     if (themeBtn) {
         themeBtn.addEventListener('click', UIActions.toggleTheme);
     }
