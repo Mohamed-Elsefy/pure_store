@@ -1,3 +1,5 @@
+// src/features/product/product.controller.js
+
 import { loadTemplate } from '../../core/utils/template.loader.js';
 import { ProductService } from '../../core/services/product.service.js';
 import { ProductDetailsView } from './product.view.js';
