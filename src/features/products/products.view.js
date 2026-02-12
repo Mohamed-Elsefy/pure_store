@@ -1,205 +1,166 @@
 // src/features/products/products.view.js
-
 import { loadTemplate } from '../../core/utils/template.loader.js';
 import { Spinner } from '../../core/utils/spinner.js';
 
 /**
  * ProductsView
- * Handles rendering and UI interactions for the Products page.
- * This layer is responsible only for DOM manipulation and user interaction,
- * without any business logic or API calls.
+ * Responsible only for rendering the DOM and delegating user interactions to the controller.
  */
 export const ProductsView = {
-    // Current active page in pagination
+    // Current pagination state
     currentPage: 1,
-
-    // Total number of available pages
     totalPages: 1,
 
-    // -----------------------------
-    // Load the base layout (Sidebar + Grid)
+    /**
+     * Load and render the sidebar layout
+     */
     async renderLayout() {
-        // Load and inject the sidebar template
         const sidebar = await loadTemplate('/src/features/products/partials/sidebar.html');
-        document.getElementById('sidebar-container').innerHTML = sidebar;
+        const container = document.getElementById('sidebar-container');
+        if (container) container.innerHTML = sidebar;
     },
 
-    // -----------------------------
-    // Load and return the product card template
+    /**
+     * Load product card template
+     * @returns {string} HTML template string
+     */
     async getCardTemplate() {
         return await loadTemplate('/src/features/products/partials/product-card.html');
     },
 
-    // -----------------------------
-    // binds click events to each product card so that clicking on the card
-    // (but not on the "Add to Cart" button) navigates to the product's detail page.
-    bindProductClick() {
-        const cards = document.querySelectorAll('.product-card');
-
-        cards.forEach(card => {
-            card.addEventListener('click', (e) => {
-                // Ignore clicks on the "Add to Cart" button inside the card
-                if (e.target.closest('.add-to-cart-btn')) {
-                    return;
-                }
-
-                // Get the product ID stored in the card's data attribute
-                const id = card.dataset.productId;
-
-                // Navigate to the product detail page using hash routing
-                window.location.hash = `#/product/${id}`;
-            });
-        });
-    },
-
-
-    // -----------------------------
-    // Render product cards inside the grid
+    /**
+     * Render products in the grid
+     * @param {Array} products - Array of product objects
+     * @param {string} cardTemplate - HTML template for a single product card
+     */
     renderProducts(products, cardTemplate) {
         const grid = document.getElementById('products-grid');
         if (!grid) return;
 
-        // Show empty state when no products are available
+        // Show empty state if no products
         if (!products || products.length === 0) {
             grid.innerHTML = `
-                <p class="col-span-full text-center py-20 text-gray-500">
-                    No products found matching your search.
-                </p>`;
+                <div class="col-span-full flex flex-col items-center py-20 text-gray-500">
+                    <i class="fa-solid fa-magnifying-glass text-4xl mb-4 opacity-20"></i>
+                    <p class="text-lg font-medium">No products found matching your criteria.</p>
+                </div>`;
             return;
         }
 
-        // Build product cards using the template
+        // Build product cards
         grid.innerHTML = products.map(product => {
-            // Prefer thumbnail, fallback to first image if available
             const image = product.thumbnail || product.images?.[0] || '';
-
             return cardTemplate
                 .replace(/{{id}}/g, product.id)
                 .replace(/{{image}}/g, image)
                 .replace(/{{title}}/g, product.title)
                 .replace(/{{price}}/g, product.price)
-                .replace(/{{brand}}/g, product.brand ?? '')
-                .replace(/{{category}}/g, product.category ?? '')
-                .replace(/{{rating}}/g, product.rating ?? '');
+                .replace(/{{brand}}/g, product.brand || 'Generic')
+                .replace(/{{category}}/g, product.category || 'General')
+                .replace(/{{rating}}/g, product.rating || '0.0');
         }).join('');
 
-        // Update pagination controls after rendering products
+        // Update pagination after rendering
         this.renderPagination();
 
-        // 
+        // Bind click events to product cards
         this.bindProductClick();
     },
 
-    // -----------------------------
-    // Render categories list and bind click callbacks
+    /**
+     * Render category list in the sidebar
+     * @param {Array} categories - List of category objects or strings
+     * @param {Function} handler - Callback on category selection
+     */
     renderCategories(categories, handler) {
         const list = document.getElementById('categories-list');
         const template = document.getElementById('category-item-template');
-
         if (!list || !template) return;
 
         list.innerHTML = '';
 
+        // Add remaining categories
         categories.forEach(cat => {
-            const name = cat.name || cat;
-            const slug = cat.slug || cat;
+            const slug = (typeof cat === 'object') ? cat.slug : cat;
+            const name = (typeof cat === 'object') ? cat.name : cat;
 
             const clone = template.content.cloneNode(true);
             const li = clone.querySelector('li');
             const span = clone.querySelector('.category-name');
-
             li.setAttribute('data-category', slug);
-            span.textContent = name.charAt(0).toUpperCase() + name.slice(1);
-
-            li.addEventListener('click', () => handler(slug));
+            span.textContent = name;
 
             list.appendChild(clone);
         });
+
+        // Event delegation for category selection
+        list.onclick = (e) => {
+            const li = e.target.closest('.category-item');
+            if (li) {
+                const selectedCat = li.getAttribute('data-category') || null;
+                handler(selectedCat);
+            }
+        };
     },
 
-    // -----------------------------
-    // Bind price filter inputs (min / max price)
+    /**
+     * Bind min/max price filter inputs
+     * @param {Function} handler - Callback on price change
+     */
     bindFilters(handler) {
         const minInput = document.getElementById('min-price');
         const maxInput = document.getElementById('max-price');
 
         const emitChange = () => {
-            const minRaw = minInput.value.trim();
-            const maxRaw = maxInput.value.trim();
-
-            let min = minRaw === '' ? null : Number(minRaw);
-            let max = maxRaw === '' ? null : Number(maxRaw);
-
-            // Prevent negative values
-            if (min !== null && min < 0) min = 0;
-            if (max !== null && max < 0) max = Infinity;
-
-            // Emit updated filter values
-            handler({
-                minPrice: min,
-                maxPrice: max
-            });
+            const min = minInput.value === '' ? 0 : Number(minInput.value);
+            const max = maxInput.value === '' ? Infinity : Number(maxInput.value);
+            handler({ minPrice: min, maxPrice: max });
         };
 
-        minInput?.addEventListener('input', emitChange);
-        maxInput?.addEventListener('input', emitChange);
+        minInput?.addEventListener('change', emitChange);
+        maxInput?.addEventListener('change', emitChange);
     },
 
-    // -----------------------------
-    // Update pagination controls (Previous / Next buttons and page info)
+    /**
+     * Render pagination buttons and info
+     */
     renderPagination() {
         const prevBtn = document.getElementById('pagination-prev');
         const nextBtn = document.getElementById('pagination-next');
         const pageInfo = document.getElementById('pagination-info');
-
         if (!prevBtn || !nextBtn || !pageInfo) return;
 
-        // Disable buttons based on current page
         prevBtn.disabled = this.currentPage <= 1;
         nextBtn.disabled = this.currentPage >= this.totalPages;
 
-        // Update page indicator text
-        pageInfo.textContent = `Page ${this.currentPage} of ${this.totalPages}`;
-    },
+        prevBtn.classList.toggle('opacity-50', prevBtn.disabled);
+        prevBtn.classList.toggle('cursor-not-allowed', prevBtn.disabled);
+        nextBtn.classList.toggle('opacity-50', nextBtn.disabled);
+        nextBtn.classList.toggle('cursor-not-allowed', nextBtn.disabled);
 
-    // -----------------------------
-    // Callback triggered when the page changes
-    onPageChange: null,
+        pageInfo.textContent = `Page ${this.currentPage} of ${this.totalPages || 1}`;
+    },
 
     /**
-     * Registers a callback to be executed when the page changes.
-     * Used by the controller to react to pagination events.
+     * Bind click events on product cards
+     * Navigates to product details or logs add-to-cart
      */
-    setPageChangeHandler(callback) {
-        this.onPageChange = callback;
-    },
-
-    // -----------------------------
-    // Update pagination state based on total items and items per page
-    updatePagination(totalItems, itemsPerPage) {
-        this.totalPages = Math.ceil(totalItems / itemsPerPage);
-
-        // Ensure current page is always within valid range
-        if (this.currentPage > this.totalPages) {
-            this.currentPage = this.totalPages || 1;
-        }
-
-        this.renderPagination();
-    },
-
-    // -----------------------------
-    // show spinner whene loading 
-    showLoading() {
+    bindProductClick() {
         const grid = document.getElementById('products-grid');
-        if (grid) {
-            grid.innerHTML = Spinner();
-        }
-    },
+        grid?.addEventListener('click', (e) => {
+            const card = e.target.closest('.product-card');
+            const addToCartBtn = e.target.closest('.add-to-cart-btn');
 
-    showCategoriesLoading() {
-        const list = document.getElementById('categories-list');
-        if (list) {
-            list.innerHTML = Spinner();
-        }
-    }
+            if (card && !addToCartBtn) {
+                const id = card.dataset.productId;
+                window.location.hash = `#/product/${id}`;
+            }
+
+            if (addToCartBtn) {
+                const id = addToCartBtn.dataset.id;
+                // Call add-to-cart action later
+                console.log('Added to cart:', id);
+            }
+        });
+    },
 };

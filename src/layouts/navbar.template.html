@@ -5,15 +5,15 @@
 
     <div class="flex items-center justify-between px-6 py-4">
 
-        <!-- Logo -->
+        <!-- Logo: links to home page -->
         <a href="/home" data-link
             class="font-extrabold text-(--accent) font-(family-name:--fsecond) tracking-tight text-2xl sm:text-3xl lg:text-4xl hover:opacity-80 transition-opacity">
             PureStore
         </a>
 
-        <!-- Navigation Links (desktop + mobile) -->
+        <!-- Navigation Links (desktop & mobile) -->
         <div id="nav-links"
-            class=" absolute top-20 right-4 w-1/3 flex flex-col items-center gap-4 bg-(--bg-surface)/95 backdrop-blur-md shadow-lg rounded-2xl py-4 transition-all duration-300 opacity-0 -translate-y-4 pointer-events-none 
+            class="absolute top-20 right-4 w-1/3 flex flex-col items-center gap-4 bg-(--bg-surface)/95 backdrop-blur-md shadow-lg rounded-2xl py-4 transition-all duration-300 opacity-0 -translate-y-4 pointer-events-none 
              md:static md:flex md:flex-row md:gap-8 md:w-auto md:bg-transparent md:shadow-none md:py-0 md:rounded-none md:opacity-100 md:translate-y-0 md:pointer-events-auto md:backdrop-blur-none">
 
             <!-- Home link -->
@@ -46,18 +46,19 @@
 
         </div>
 
-        <!-- Right-side icons -->
+        <!-- Right-side icons: Search and Theme toggle -->
         <div class="flex items-center gap-2 z-50">
 
-            <!-- Search input -->
+            <!-- Search input with expanding width -->
             <div
                 class="group relative flex items-center w-20 focus-within:w-32 sm:w-44 sm:focus-within:w-44 md:w-52 md:focus-within:w-52 lg:w-72 lg:focus-within:w-72 transition-all duration-300 ease-out">
 
-                <!-- input field -->
+                <!-- Input field -->
                 <input id="search-input" type="text" placeholder="Search..."
                     class="w-full h-8 md:h-10 pl-9 pr-3 rounded-full bg-(--bg-primary) backdrop-blur text-xs md:text-sm text-(--text-primary)
                         placeholder:text-(--text-secondary) border border-transparent focus:border-(--accent) focus:outline-none transition-all duration-300" />
 
+                <!-- Magnifying glass icon -->
                 <i
                     class="fa-solid fa-magnifying-glass absolute left-3 text-(--text-secondary) pointer-events-none  group-focus-within:text-(--accent) transition-colors"></i>
 
@@ -75,13 +76,12 @@
 
             </div>
 
-
             <!-- Theme toggle button -->
             <button id="theme-toggle"
                 class="group relative flex items-center justify-center w-9 h-9 md:w-10 md:h-10 rounded-full bg-(--bg-primary)/60 backdrop-blur
                 border border-(--border-glass) hover:border-(--accent) hover:shadow-(--border-glass) transition-all duration-300 cursor-pointer">
 
-                <!-- teme icon -->
+                <!-- Theme icon: switches between sun/moon -->
                 <i
                     class="fa-regular fa-sun text-sm md:text-base text-(--text-secondary) group-hover:text-(--accent) transition-colors duration-300">
                 </i>

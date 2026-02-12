@@ -2,20 +2,26 @@
 
 import httpService from './http.service.js';
 
-
 export const ProductService = {
-
     /**
-     * Get all products
-     * DummyJSON returns: { products, total, skip, limit }
+     * Fetch all products with optional pagination and sorting
+     * @param {Object} options - Pagination and sorting options
+     * @param {number} options.page - Page number (default 1)
+     * @param {number} options.limit - Items per page (default 10)
+     * @param {string} options.sortBy - Field to sort by
+     * @param {string} options.order - Sort order: 'asc' or 'desc' (default 'asc')
+     * @returns {Object} - { products, total, page, limit }
      */
-    async getAllProducts({ page = 1, limit = 10 } = {}) {
-        // pagination
+    async getAllProducts({ page = 1, limit = 10, sortBy = '', order = 'asc' } = {}) {
         const skip = (page - 1) * limit;
+        const params = new URLSearchParams({ skip, limit });
 
-        const query = new URLSearchParams({ skip, limit }).toString();
-        const res = await httpService.get(`/products?${query}`);
+        if (sortBy) {
+            params.append('sortBy', sortBy);
+            params.append('order', order);
+        }
 
+        const res = await httpService.get(`/products?${params.toString()}`);
         return {
             products: res.products,
             total: res.total,
@@ -24,16 +30,19 @@ export const ProductService = {
         };
     },
 
-
     /**
-     * Get single product by ID
+     * Fetch a single product by its ID
+     * @param {string|number} id - Product ID
+     * @returns {Object} - Product object
      */
     async getProductById(id) {
         return await httpService.get(`/products/${id}`);
     },
 
     /**
-     * Search products
+     * Search products by a query string
+     * @param {string} query - Search keyword
+     * @returns {Array} - Array of matching products
      */
     async searchProducts(query) {
         const res = await httpService.get(`/products/search?q=${query}`);
@@ -41,17 +50,14 @@ export const ProductService = {
     },
 
     /**
-     * Get all categories (array of strings)
-     */
-    async getCategories() {
-        return await httpService.get('/products/categories');
-    },
-
-    /**
-     * Get products by category
+     * Get products filtered by category with optional pagination
+     * @param {string} category - Category slug or name
+     * @param {Object} options - Pagination options
+     * @param {number} options.page - Page number (default 1)
+     * @param {number} options.limit - Items per page (default 10)
+     * @returns {Object} - { products, total, page, limit }
      */
     async getProductsByCategory(category, { page = 1, limit = 10 } = {}) {
-        // pagination
         const skip = (page - 1) * limit;
         const query = new URLSearchParams({ skip, limit }).toString();
         const res = await httpService.get(`/products/category/${category}?${query}`);
@@ -64,23 +70,29 @@ export const ProductService = {
         };
     },
 
-
     /**
-     * Add product (simulated)
+     * Add a new product
+     * @param {Object} productData - Product details
+     * @returns {Object} - Created product
      */
     async addProduct(productData) {
         return await httpService.post('/products/add', productData);
     },
 
     /**
-     * Update product (simulated)
+     * Update an existing product by ID
+     * @param {string|number} id - Product ID
+     * @param {Object} productData - Updated product details
+     * @returns {Object} - Updated product
      */
     async updateProduct(id, productData) {
         return await httpService.put(`/products/${id}`, productData);
     },
 
     /**
-     * Delete product (simulated)
+     * Delete a product by ID
+     * @param {string|number} id - Product ID
+     * @returns {Object} - Deletion result
      */
     async deleteProduct(id) {
         return await httpService.delete(`/products/${id}`);

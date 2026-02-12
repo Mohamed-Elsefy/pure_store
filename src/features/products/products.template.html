@@ -1,61 +1,62 @@
-<!-- Products Page Template -->
+<!-- Products Page Layout -->
 
-<!-- Mobile sidebar toggle button -->
-<!-- Visible only on small screens (md:hidden) -->
+<!-- Sidebar toggle button for mobile -->
 <button id="sidebar-toggle"
-    class="md:hidden sticky top-20 z-10 py-2 px-3 ml-5 mt-3 rounded-full shadow-lg text-(--accent) bg-(--bg-primary) border border-(--accent)">
-    <i class="fa-solid fa-arrow-right"></i>
+    class="md:hidden sticky top-20 z-40 py-2.5 px-4 ml-5 mt-4 rounded-2xl shadow-xl text-(--accent) bg-(--bg-surface) border border-(--border-glass) active:scale-95 transition-transform">
+    <i class="fa-solid fa-filter-list mr-2"></i>
+    <span class="text-sm font-bold">Filters</span>
 </button>
 
-<div class="flex min-h-screen gap-4">
+<div class="flex min-h-screen gap-6 mx-auto px-4">
 
-    <!-- Sidebar container -->
-    <!-- Fixed on mobile, sticky on desktop -->
-    <!-- Hidden off-canvas on mobile using transform -->
+    <!-- Sidebar / filters panel -->
     <aside id="sidebar-container"
         class="fixed top-20 left-4 w-72 backdrop-blur-3xl transform -translate-x-[120%] md:translate-x-0 transition-all duration-500 
-       z-30 md:sticky md:top-24 h-[calc(100vh-115px)] overflow-y-auto p-8 bg-(--bg-surface) border rounded-3xl border-(--border-glass) shadow-md">
-        <!-- Sidebar content is injected dynamically via JS -->
+               z-50 md:sticky md:top-24 h-[calc(100vh-120px)] overflow-y-auto p-6 bg-(--bg-surface) border rounded-[2.5rem] border-(--border-glass) shadow-2xl md:shadow-none">
+        <!-- Loading spinner placeholder for filters -->
+        <div class="flex items-center justify-center h-full opacity-20">
+            <i class="fa-solid fa-spinner fa-spin text-2xl"></i>
+        </div>
     </aside>
 
-    <!-- Main content area -->
-    <main id="grid-container" class="flex-1 p-4">
+    <!-- Main content: Products grid -->
+    <main id="grid-container" class="flex-1 py-8 relative min-h-125">
 
-        <!-- Products grid wrapper -->
-        <main class="flex-1 p-4">
-            <!-- Grid where product cards are rendered -->
-            <div id="products-grid" class="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3
-                       gap-x-6 gap-y-12">
-                <!-- Product cards are injected here -->
+        <!-- Loading overlay for products -->
+        <div id="products-loading"
+            class="hidden absolute inset-0 z-30 justify-center items-start pt-40 rounded-3xl transition-all"> </div>
+
+        <!-- Products grid -->
+        <div id="products-grid"
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 transition-opacity duration-300">
+        </div>
+
+        <!-- Pagination controls -->
+        <div id="pagination-wrapper" class="flex flex-col sm:flex-row justify-center items-center gap-6 mt-16 pb-12">
+            <div class="flex items-center gap-3">
+
+                <!-- Previous page button -->
+                <button id="pagination-prev"
+                    class="group flex items-center justify-center w-12 h-12 rounded-2xl border border-(--border-glass) bg-(--bg-surface) text-(--text-secondary) hover:border-(--accent) hover:text-(--accent) transition-all disabled:opacity-30 disabled:cursor-not-allowed">
+                    <i class="fa-solid fa-chevron-left group-hover:-translate-x-1 transition-transform"></i>
+                </button>
+
+                <!-- Pagination info -->
+                <div class="bg-(--bg-surface) border border-(--border-glass) px-6 py-3 rounded-2xl shadow-sm">
+                    <span id="pagination-info" class="text-sm font-bold tracking-tight text-(--text-primary)">
+                        Page 1 of 1
+                    </span>
+                </div>
+
+                <!-- Next page button -->
+                <button id="pagination-next"
+                    class="group flex items-center justify-center w-12 h-12 rounded-2xl border border-(--border-glass) bg-(--bg-surface) text-(--text-secondary) hover:border-(--accent) hover:text-(--accent) transition-all disabled:opacity-30 disabled:cursor-not-allowed">
+                    <i class="fa-solid fa-chevron-right group-hover:translate-x-1 transition-transform"></i>
+                </button>
             </div>
-        </main>
-
-        <!-- Fixed pagination controls -->
-        <div id="pagination-wrapper" class="flex justify-center items-center gap-4 mt-6">
-
-            <!-- Previous page button -->
-            <button id="pagination-prev" class="px-4 py-2 border rounded border-(--accent)
-                       text-(--accent) transition
-                       hover:-translate-y-0.5 hover:shadow-lg duration-300">
-                Previous
-            </button>
-
-            <!-- Current page indicator -->
-            <span id="pagination-info" class="px-2 text-sm text-(--text-secondary)">
-                Page 1 of 1
-            </span>
-
-            <!-- Next page button -->
-            <button id="pagination-next" class="px-4 py-2 border rounded border-(--accent)
-                       text-(--accent) transition
-                       hover:-translate-y-0.5 hover:shadow-lg duration-300">
-                Next
-            </button>
         </div>
     </main>
 </div>
 
-<!-- Overlay background -->
-<!-- Shown when sidebar is open on mobile to block interactions -->
-<div id="overlay" class="fixed inset-0 bg-black opacity-40 hidden z-20 md:hidden">
-</div>
+<!-- Mobile overlay when sidebar is open -->
+<div id="overlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden z-40 md:hidden transition-opacity"></div>
