@@ -1,17 +1,20 @@
-<!-- Product Details Section -->
+<!-- src/features/product/product.template.html -->
+
+<!-- Main container for product details page -->
 <section class="max-w-7xl mx-auto px-4 pt-5">
 
-    <!-- Main container: split into two columns on medium screens -->
+    <!-- Loading state placeholder (hidden by default) -->
+    <div id="loading-state" class="hidden justify-center items-center py-40"> </div>
+
+    <!-- Product details grid -->
     <div id="product-details" class="grid grid-cols-1 md:grid-cols-2 gap-12">
 
-        <!-- ================= Images Section ================= -->
+        <!-- Left side: Product images -->
         <div class="grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-4 items-center">
 
-            <!-- Main product image container -->
+            <!-- Main product image -->
             <div
                 class="aspect-square rounded-3xl overflow-hidden bg-(--bg-surface) border border-(--border-glass) order-1 sm:order-2">
-
-                <!-- Main displayed image (changed dynamically via JS) -->
                 <img id="main-image" alt="" class="w-full h-full object-contain transition-all duration-500">
             </div>
 
@@ -19,56 +22,48 @@
             <div id="thumbnails"
                 class="flex flex-row sm:flex-col gap-3 order-2 sm:order-1 overflow-x-auto sm:overflow-y-auto">
 
-                <!-- Template for each thumbnail image (cloned dynamically) -->
+                <!-- Thumbnail template to clone for each image -->
                 <template id="thumbnail-item-template">
-                    <img class="thumb w-20 h-20 object-contain cursor-pointer rounded-xl 
-                               border border-(--border-glass) 
-                               hover:border-(--accent) transition-all">
+                    <img
+                        class="thumb w-20 h-20 object-contain cursor-pointer rounded-xl border border-(--border-glass) hover:border-(--accent) transition-all">
                 </template>
 
             </div>
 
         </div>
 
-        <!-- ================= Product Info Section ================= -->
+        <!-- Right side: Product info -->
         <div class="space-y-6">
 
-            <!-- Product Category -->
-            <p class="text-xs uppercase tracking-widest text-(--text-secondary)">
-                {{category}}
+            <!-- Category label -->
+            <p data-category class="text-xs uppercase tracking-widest text-(--text-secondary)">
             </p>
 
-            <!-- Product Title -->
-            <h1 class="text-3xl font-black font-(family-name:--fsecond)">
-                {{title}}
+            <!-- Product title -->
+            <h1 data-title class="text-3xl font-black font-(family-name:--fsecond)">
             </h1>
 
-            <!-- Rating and Stock -->
+            <!-- Rating and stock info -->
             <div class="flex items-center gap-4">
                 <div>
                     <i class="fa-solid fa-star text-(--accent)"></i>
-                    <span class="font-bold">{{rating}}</span>
+                    <span data-rating class="font-bold"></span>
                 </div>
-                <span class="text-sm text-(--text-secondary)">
-                    ({{stock}} in stock)
+                <span data-stock class="text-sm text-(--text-secondary)">
                 </span>
             </div>
 
-            <!-- Product Price -->
-            <div class="text-4xl font-extrabold text-(--accent)">
-                ${{price}}
+            <!-- Product price -->
+            <div data-price class="text-4xl font-extrabold text-(--accent)">
             </div>
 
-            <!-- Product Description -->
-            <p class="leading-relaxed text-(--text-secondary)">
-                {{description}}
+            <!-- Product description -->
+            <p data-description class="leading-relaxed text-(--text-secondary)">
             </p>
 
-            <!-- Add to Cart Button -->
-            <button class="w-full py-3 rounded-2xl border border-(--accent) 
-                       text-(--accent) 
-                       hover:bg-(--accent) hover:text-white 
-                       transition-all">
+            <!-- Add to cart button -->
+            <button
+                class="add-to-cart-btn w-full py-3 rounded-2xl border border-(--accent) text-(--accent) hover:bg-(--accent) hover:text-white  transition-all">
                 Add to Cart
             </button>
 

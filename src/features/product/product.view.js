@@ -1,82 +1,96 @@
-// View layer responsible for rendering product details UI
-export const ProductDetailsView = {
+// src/features/product/product.view.js
+import { UILoader } from "../../core/utils/ui.loader.js";
 
+export const ProductDetailsView = {
     /**
-     * Render product data inside the template
-     * @param {Object} product - Product object returned from API
+     * Render the product details in the DOM
+     * @param {Object} product - Product object containing info and images
      */
     render(product) {
-
-        // Select main container for product details
         const container = document.getElementById('product-details');
+        const loadingEl = document.getElementById('loading-state');
 
-        // Stop execution if container or product is missing
         if (!container || !product) return;
 
-        // Determine base image (fallback logic)
-        // Priority: thumbnail -> first image -> empty string
-        const baseImage = product.thumbnail || product.images?.[0] || '';
+        // 1. Manage visual state: hide loader and show content
+        if (loadingEl) {
+            loadingEl.classList.add('hidden');
+            loadingEl.classList.remove('flex');
+        }
+        container.classList.remove('hidden');
+        container.classList.add('grid');
 
-        // Replace template placeholders with actual product data
-        container.innerHTML = container.innerHTML
-            .replace(/{{title}}/g, product.title)
-            .replace(/{{description}}/g, product.description)
-            .replace(/{{price}}/g, product.price)
-            .replace(/{{rating}}/g, product.rating)
-            .replace(/{{stock}}/g, product.stock)
-            .replace(/{{category}}/g, product.category);
+        // 2. Update text content safely
+        const safeSetText = (selector, text) => {
+            const el = container.querySelector(selector);
+            if (el) el.textContent = text;
+        };
 
-        // Set main product image
+        safeSetText('[data-title]', product.title);
+        safeSetText('[data-category]', product.category);
+        safeSetText('[data-description]', product.description);
+        safeSetText('[data-price]', `$${product.price}`);
+        safeSetText('[data-rating]', product.rating);
+        safeSetText('[data-stock]', `${product.stock} in stock`);
+
+        // 3. Update main product image
         const mainImage = document.getElementById('main-image');
-        mainImage.src = baseImage;
-        mainImage.alt = product.title;
+        if (mainImage) {
+            mainImage.src = product.thumbnail || (product.images && product.images[0]) || '';
+            mainImage.alt = product.title;
+        }
 
-        // Render image thumbnails
-        this.renderThumbnails(product.images || [], baseImage);
+        // 4. Render product thumbnails
+        this.renderThumbnails(product.images || [], mainImage?.src);
+
+        UILoader.hide();
     },
 
-    /**
-     * Render product image thumbnails
+    /** 
+     * Render thumbnail images and handle hover/click interactions
      * @param {Array} images - Array of image URLs
-     * @param {string} baseImage - Default main image
+     * @param {string} initialBaseImage - The initially active main image
      */
-    renderThumbnails(images, baseImage) {
-
-        // Select thumbnails wrapper and template
+    renderThumbnails(images, initialBaseImage) {
         const wrapper = document.getElementById('thumbnails');
         const template = document.getElementById('thumbnail-item-template');
         const mainImage = document.getElementById('main-image');
 
-        // Stop if required elements are missing
         if (!wrapper || !template || !mainImage) return;
 
-        // Clear previous thumbnails
         wrapper.innerHTML = '';
+        let currentActiveImage = initialBaseImage;
 
-        // Loop through product images
-        images.forEach(img => {
-
-            // Clone template content
+        // Clone template for each image
+        images.forEach((img) => {
             const clone = template.content.cloneNode(true);
             const imageEl = clone.querySelector('img');
-
-            // Set thumbnail image source
             imageEl.src = img;
 
-            // Store image URL in dataset (optional reference)
-            imageEl.dataset.img = img;
+            // Highlight the active image
+            if (img === currentActiveImage) {
+                imageEl.classList.add('border-(--accent)');
+            }
 
-            // On hover → temporarily change main image
+            // Hover to temporarily change main image
             imageEl.addEventListener('mouseenter', () => {
                 mainImage.src = img;
             });
 
-            // On leave → revert to base image
+            // Revert main image on mouse leave
             imageEl.addEventListener('mouseleave', () => {
-                mainImage.src = baseImage;
+                mainImage.src = currentActiveImage;
             });
 
-            // Append thumbnail to wrapper
+            // Click to select as main image
+            imageEl.addEventListener('click', () => {
+                currentActiveImage = img;
+                mainImage.src = img;
+                // Remove highlight from all thumbnails and highlight the selected one
+                wrapper.querySelectorAll('img').forEach(el => el.classList.remove('border-(--accent)'));
+                imageEl.classList.add('border-(--accent)');
+            });
+
             wrapper.appendChild(clone);
         });
     }

@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en" class="">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Modern E-commerce web application built with Tailwind CSS and JavaScript. Browse products, manage cart, and checkout easily.">
+  <meta name="description"
+    content="Modern E-commerce web application built with Tailwind CSS and JavaScript. Browse products, manage cart, and checkout easily.">
   <meta name="keywords" content="ecommerce, online store, shopping cart, tailwind css, javascript, web shop">
   <meta name="author" content="Mohamed El-Sefy">
   <!-- SEO: Search engine indexing rules -->
@@ -23,6 +25,12 @@
   <!-- Dynamic navbar -->
   <nav></nav>
 
+  <!-- Loading layer -->
+  <div id="global-loader"
+    class="fixed inset-0 z-9999 hidden items-center justify-center bg-(--bg-primary)/60 backdrop-blur-[2px] transition-opacity duration-300 opacity-0">
+    <div id="loader-content"></div>
+  </div>
+
   <!-- Main app container -->
   <main id="app" class="py-20"></main>
 
@@ -30,4 +38,5 @@
   <footer></footer>
 
 </body>
+
 </html>

@@ -1,55 +1,35 @@
 // src/core/router/router.js
 
-// Import route definitions (path → controller mapping)
 import { ROUTES } from '../config/routes.config.js';
 
 class Router {
     constructor() {
-        // Main application container where pages are rendered
         this.appElement = document.getElementById('app');
+        // Keep a reference to the current controller to allow cleanup later
+        this.currentController = null;
 
-        // Initialize router logic
         this._init();
     }
 
     _init() {
-        /**
-         * Remove "index.html" from the URL visually
-         * This keeps URLs clean without affecting functionality
-         * Example:
-         * /index.html#/home → /#/home
-         */
+        // Clean the URL from 'index.html' if present
         if (window.location.pathname.includes('index.html')) {
             const cleanPath = window.location.pathname.replace('index.html', '');
             window.history.replaceState(null, '', cleanPath + window.location.hash);
         }
 
-        /**
-         * Listen for hash changes
-         * Trigger routing when URL hash changes
-         */
+        // Listen for hash changes to trigger routing
         window.addEventListener('hashchange', () => this.route());
 
-        /**
-         * Intercept clicks on links with [data-link]
-         * Prevent full page reload and use client-side routing instead
-         */
+        // Delegate click events for elements with 'data-link' to change the hash without page reload
         document.addEventListener('click', (e) => {
             if (e.target.matches('[data-link]')) {
                 e.preventDefault();
-
-                // Extract route path from href
-                const href = e.target.getAttribute('href');
-
-                // Update hash to trigger router
-                window.location.hash = href;
+                window.location.hash = e.target.getAttribute('href');
             }
         });
 
-        /**
-         * Default route logic
-         * If no hash is present, redirect to /home
-         */
+        // If there's no hash or it's root, redirect to home
         const currentHash = window.location.hash;
         if (!currentHash || currentHash === '#/') {
             window.location.hash = '#/home';
@@ -59,70 +39,48 @@ class Router {
     }
 
     async route() {
-        // Clear previous page content
+        /**
+         * Cleanup step:
+         * If there's a current controller and it has a 'destroy' method, call it
+         */
+        if (this.currentController && typeof this.currentController.destroy === 'function') {
+            this.currentController.destroy();
+        }
+
+        // Clear the app container before rendering new content
         this.appElement.innerHTML = '';
 
-        /**
-         * Extract path from hash
-         * Example: "#/home" → "/home"
-         */
-        let fullPath = window.location.hash.slice(1); // /product/123
+        // Parse the hash to get base path and optional parameter
+        let fullPath = window.location.hash.slice(1);
         let parts = fullPath.split('/').filter(Boolean);
+        const basePath = `/${parts[0]}`;
+        const param = parts[1];
 
-        const basePath = `/${parts[0]}`; // /product
-        const param = parts[1];         // 123
-
-
-        // Find matching route configuration
+        // Get the route configuration
         const route = ROUTES[basePath];
-        /**
-         * Handle unknown routes (404)
-         */
         if (!route) {
-            this.appElement.innerHTML =
-                '<h1 class="text-2xl font-bold p-4">404 - Page Not Found</h1>';
+            this.appElement.innerHTML = '<h1 class="text-2xl font-bold p-4">404 - Page Not Found</h1>';
             return;
         }
 
         try {
-            /**
-             * Derive feature folder name from path
-             * Example: "/products" → "products"
-             */
+            // Dynamically import the feature controller module
             const featureName = basePath.replace('/', '');
-
-            /**
-             * Dynamically import the controller for the feature
-             * This enables code-splitting and lazy loading
-             */
-            const module = await import(
-                `/src/features/${featureName}/${featureName}.controller.js`
-            );
-
-            // Get controller class from imported module
+            const module = await import(`/src/features/${featureName}/${featureName}.controller.js`);
             const ControllerClass = module[route.controller];
 
-            // Create controller instance and pass id to controller constractor if exist
-            const controller = new ControllerClass({
-                id: param || null
-            });
+            // Instantiate the controller and store it as the current controller
+            this.currentController = new ControllerClass({ id: param || null });
 
-            // Initialize controller logic (fetch data, render UI, etc.)
-            await controller.init();
+            await this.currentController.init();
 
         } catch (error) {
-            // Log error for debugging
             console.error('Routing Error:', error);
-
-            // Display user-friendly error message
-            this.appElement.innerHTML =
-                `<div class="p-4 text-red-500 font-bold">
-                    Error loading the page. Check Console.
-                 </div>`;
+            this.appElement.innerHTML = `<div class="p-4 text-red-500 font-bold">Error loading the page.</div>`;
         }
     }
 }
 
-// Create and export a single router instance (Singleton)
+// Initialize the router
 const router = new Router();
 export default router;

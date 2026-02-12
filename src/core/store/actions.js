@@ -1,206 +1,120 @@
 // src/core/store/actions.js
-
-// Import the global store instance
 import store from './store.js';
-import { Storage } from '../utils/storage.js';
-import {ProductService} from '../services/product.service.js'
+import { ProductService } from '../services/product.service.js';
+import { CategoryService } from '../services/category.service.js';
 
-/**
- * Actions
- * Actions are responsible for handling business logic
- * and requesting state changes from the Store.
- * They do NOT modify the state directly.
- */
-
-//       User / Authentication Actions
-export const UserActions = {
-    /**
-     * Set logged-in user data
-     * @param {Object} userData - User information
-     */
-    setUser: (userData) => {
-        store.setState({ user: userData });
-    },
-
-    /**
-     * Logout the user
-     * Clears user data, token, and persisted auth info
-     */
-    logout: () => {
-        store.setState({ user: null, token: null });
-        localStorage.removeItem('token');
-    }
-};
-
-//    Cart Actions
-export const CartActions = {
-    /**
-     * Add a product to the shopping cart
-     * If the product already exists, increase its quantity
-     *
-     * @param {Object} product - Product object to add
-     */
-    addToCart: (product) => {
-        const { cart } = store.getState();
-
-        // Check if the product already exists in the cart
-        const existingItem = cart.find(item => item.id === product.id);
-
-        if (existingItem) {
-            // Increase quantity for existing item
-            const updatedCart = cart.map(item =>
-                item.id === product.id
-                    ? { ...item, quantity: item.quantity + 1 }
-                    : item
-            );
-
-            store.setState({ cart: updatedCart });
-        } else {
-            // Add new product with initial quantity = 1
-            store.setState({
-                cart: [...cart, { ...product, quantity: 1 }]
-            });
-        }
-    },
-
-    /**
-     * Remove a product from the cart by its ID
-     *
-     * @param {number|string} productId - Product identifier
-     */
-    removeFromCart: (productId) => {
-        const { cart } = store.getState();
-
-        store.setState({
-            cart: cart.filter(item => item.id !== productId)
-        });
-    },
-
-    /**
-     * Clear all items from the cart
-     */
-    clearCart: () => {
-        store.setState({ cart: [] });
-    }
-};
-
-//    UI / Theme Actions
-export const UIActions = {
-    /**
-     * Initialize theme on app startup
-     * - Reads from Storage first
-     * - Falls back to prefers-color-scheme
-     * - Saves value in store and Storage
-     * - Applies class to <html>
-     */
-    initTheme: () => {
-        let theme = Storage.get('theme');
-
-        if (!theme) {
-            // Fallback to system preference
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            theme = prefersDark ? 'dark' : 'light';
-            Storage.set('theme', theme);
-        }
-
-        // Update store
-        store.setState({ theme });
-
-        // Apply dark class to HTML root
-        document.documentElement.classList.toggle('dark', theme === 'dark');
-
-        // Update Navbar icon if exists
-        const icon = document.querySelector('#theme-toggle i');
-        if (icon) {
-            icon.classList.toggle('fa-moon', theme === 'dark');
-            icon.classList.toggle('fa-sun', theme === 'light');
-        }
-    },
-
-
-    /**
-     * Toggle between light and dark theme
-     * - Updates store, DOM, and Storage
-     */
-    toggleTheme: () => {
-        const { theme } = store.getState();
-        const newTheme = theme === 'light' ? 'dark' : 'light';
-
-        // Update store
-        store.setState({ theme: newTheme });
-
-        // Update DOM
-        document.documentElement.classList.toggle('dark', newTheme === 'dark');
-
-        // Persist using Storage
-        Storage.set('theme', newTheme);
-
-        // Update Navbar icon if exists
-        const icon = document.querySelector('#theme-toggle i');
-        if (icon) {
-            icon.classList.toggle('fa-moon', newTheme === 'dark');
-            icon.classList.toggle('fa-sun', newTheme === 'light');
-        }
-    }
-};
-
-// product actions
 export const ProductActions = {
     /**
-     * Updates the global search query used to filter products.
-     * Typically called when the user types in the search input.
-     *
-     * @param {string} query - The search text entered by the user.
+     * Fetch products and categories when the page is loaded for the first time
      */
-    setSearchQuery: async (query) => {
-        store.setState({ searchQuery: query });
+    initializeProductsPage: async () => {
+        const { products, loading } = store.getState();
+        if (products.length > 0 || loading) return; // Do nothing if data already exists or is loading
 
-        if (!query) {
-            // if field empty remove search results
-            store.setState({ searchResults: [] });
-            return;
-        }
+        store.setState({ loading: true });
 
-        // start search
         try {
-            const results = await ProductService.searchProducts(query);
-            store.setState({ searchResults: results });
+            const [productsRes, categories] = await Promise.all([
+                ProductService.getAllProducts({ page: 1, limit: 0 }), // Fetch all products
+                CategoryService.getAllCategories(),
+            ]);
+
+            store.setState({
+                products: productsRes.products,
+                categories: categories,
+                loading: false
+            });
         } catch (error) {
-            console.error('Search Error:', error);
-            store.setState({ searchResults: [] });
+            console.error("Store Init Error:", error);
+            store.setState({ loading: false });
         }
     },
 
     /**
-     * Updates product filters coming from the sidebar or filter UI.
-     * Merges the new filters with the existing ones to avoid overwriting
-     * previously applied filters.
-     *
-     * @param {Object} newFilters - An object containing the updated filters.
+     * Update filters and reset pagination to the first page
      */
     updateFilters: (newFilters) => {
-        const { filters } = store.getState();
+        const { filters, pagination } = store.getState();
         store.setState({
-            filters: { ...filters, ...newFilters }
+            filters: { ...filters, ...newFilters },
+            pagination: { ...pagination, currentPage: 1 } // Reset page when filters change
         });
     },
 
     /**
-     * Resets all product filters to their default values.
-     * - Clears the global search query.
-     * - Removes the selected category.
-     * - Resets the price range to its initial limits.
-     * This is typically used when the user clicks a "Reset Filters" button.
+     * Set search query and reset pagination to the first page
+     */
+    setSearchQuery: (query) => {
+        const { pagination } = store.getState();
+        store.setState({
+            searchQuery: query,
+            pagination: { ...pagination, currentPage: 1 }
+        });
+    },
+
+    /**
+     * Update the current page in pagination
+     */
+    setCurrentPage: (page) => {
+        const { pagination } = store.getState();
+        store.setState({
+            pagination: { ...pagination, currentPage: page }
+        });
+    },
+
+    /**
+     * Reset all filters, search query, and pagination to default values
      */
     resetFilters: () => {
         store.setState({
             searchQuery: '',
-            searchResults: [],
             filters: {
                 category: null,
                 minPrice: 0,
-                maxPrice: Infinity
+                maxPrice: Infinity,
+                sortBy: ''
+            },
+            pagination: {
+                currentPage: 1,
+                itemsPerPage: 12
             }
         });
+    }
+};
+
+export const UIActions = {
+    /**
+     * Toggle theme between light and dark
+     */
+    toggleTheme: () => {
+        const isDark = document.documentElement.classList.contains('dark');
+        const newTheme = isDark ? 'light' : 'dark';
+
+        // 1. Update DOM
+        if (newTheme === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
+        // 2. Save to LocalStorage
+        localStorage.setItem('theme', newTheme);
+
+        // 3. Update store state (if theme is stored in the store)
+        store.setState({ theme: newTheme });
+    },
+
+    /**
+     * Initialize theme on application startup
+     */
+    initTheme: () => {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        
+        if (savedTheme === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+        store.setState({ theme: savedTheme });
     }
 };
