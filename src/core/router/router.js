@@ -65,13 +65,14 @@ class Router {
 
         try {
             // Dynamically import the feature controller module
-            const featureName = basePath.replace('/', '');
-            const module = await import(`/src/features/${featureName}/${featureName}.controller.js`);
+            const module = await import(route.importPath);
             const ControllerClass = module[route.controller];
+            if (!ControllerClass) {
+                throw new Error(`Controller ${route.controller} not found in ${route.importPath}`);
+            }
 
             // Instantiate the controller and store it as the current controller
             this.currentController = new ControllerClass({ id: param || null });
-
             await this.currentController.init();
 
         } catch (error) {
