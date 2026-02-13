@@ -20,6 +20,11 @@ export const ROUTES = {
         importPath: '/src/features/auth/auth.controller.js',
         guestOnly: true
     },
+    '/profile': {
+        controller: 'ProfileController',
+        importPath: '/src/features/profile/profile.controller.js',
+        requiresAuth: true
+    },
     '/cart': {
         controller: 'CartController',
         importPath: '/src/features/cart/cart.controller.js',

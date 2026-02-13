@@ -37,31 +37,32 @@ const setupNavbarInteractions = () => {
         const loginLink = document.getElementById('nav-login-link');
         const userInfo = document.getElementById('nav-user-info');
         const usernameSpan = document.getElementById('nav-username');
+        const logoutBtn = document.getElementById('logout-btn'); // الأيقونة الجديدة
 
         const { auth } = store.getState();
 
         if (auth.isAuthenticated && auth.user) {
-            // إخفاء تسجيل الدخول
+            // 1. حالة تسجيل الدخول
             loginLink?.classList.add('hidden');
 
-            // إظهار معلومات المستخدم
-            if (userInfo) {
-                userInfo.classList.remove('hidden');
-                userInfo.classList.add('flex'); // نضمن إضافة flex هنا
-            }
-
+            // إظهار رابط "Hi, Username"
+            userInfo?.classList.remove('hidden');
+            userInfo?.classList.add('flex');
             if (usernameSpan) usernameSpan.textContent = auth.user.firstName;
+
+            logoutBtn?.classList.remove('hidden');
+            logoutBtn?.classList.add('flex');
         } else {
-            // العكس عند تسجيل الخروج
+            // 2. حالة الضيف
             loginLink?.classList.remove('hidden');
-            if (userInfo) {
-                userInfo.classList.add('hidden');
-                userInfo.classList.remove('flex');
-            }
+
+            userInfo?.classList.add('hidden');
+            userInfo?.classList.remove('flex');
+
+            logoutBtn?.classList.add('hidden');
+            logoutBtn?.classList.remove('flex');
         }
     };
-
-    // تشغيل التحديث فوراً عند التحميل
     updateAuthUI();
 
     // ربط زر تسجيل الخروج

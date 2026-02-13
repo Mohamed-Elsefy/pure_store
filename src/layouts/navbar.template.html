@@ -7,7 +7,7 @@
 
         <!-- Logo: links to home page -->
         <a href="/home" data-link
-            class="font-extrabold text-(--accent) font-(family-name:--fsecond) tracking-tight text-2xl sm:text-3xl lg:text-4xl hover:opacity-80 transition-opacity">
+            class="font-extrabold text-(--accent) font-(family-name:--fsecond) tracking-tight text-xl sm:text-3xl lg:text-4xl hover:opacity-80 transition-opacity">
             PureStore
         </a>
 
@@ -44,14 +44,13 @@
                 Login
             </a>
 
-            <div id="nav-user-info" class="hidden items-center gap-4 border-l border-(--border-glass) pl-4 ml-2">
-                <span id="nav-username" class="text-sm font-bold text-(--text-primary)"></span>
-                <button id="logout-btn"
-                    class="text-xs font-bold text-red-500 hover:text-red-600 transition-colors cursor-pointer">
-                    Logout
-                </button>
+            <!-- profile link -->
+            <div id="nav-user-info" class="hidden items-center border-l border-(--border-glass) pl-4 ml-2">
+                <a href="/profile" data-link id="nav-username-link"
+                    class="text-sm font-bold text-(--text-primary) hover:text-(--accent) transition-colors">
+                    Hi, <span id="nav-username"></span>
+                </a>
             </div>
-
         </div>
 
         <!-- Right-side icons: Search and Theme toggle -->
@@ -65,7 +64,6 @@
                 <input id="search-input" type="text" placeholder="Search..."
                     class="w-full h-8 md:h-10 pl-9 pr-3 rounded-full bg-(--bg-primary) backdrop-blur text-xs md:text-sm text-(--text-primary)
                         placeholder:text-(--text-secondary) border border-transparent focus:border-(--accent) focus:outline-none transition-all duration-300" />
-
                 <!-- Magnifying glass icon -->
                 <i
                     class="fa-solid fa-magnifying-glass absolute left-3 text-(--text-secondary) pointer-events-none  group-focus-within:text-(--accent) transition-colors"></i>
@@ -93,6 +91,13 @@
                 <i
                     class="fa-regular fa-sun text-sm md:text-base text-(--text-secondary) group-hover:text-(--accent) transition-colors duration-300">
                 </i>
+            </button>
+
+            <!-- logout button -->
+            <button id="logout-btn"
+                class="hidden items-center justify-center w-9 h-9 rounded-full bg-red-500/10 border border-red-500/20 text-(--accent) hover:text-(--text-primary) transition-all duration-300 cursor-pointer"
+                title="Logout">
+                <i class="fa-solid fa-right-from-bracket text-sm md:text-base"></i>
             </button>
 
             <!-- Mobile menu toggle button -->

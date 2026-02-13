@@ -37,4 +37,8 @@ export class AuthController {
             this.view.showError('Login failed. Please check your credentials.');
         }
     }
+
+    destroy() {
+        if (this.unsubscribe) this.unsubscribe();
+    }
 }
