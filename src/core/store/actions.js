@@ -2,6 +2,76 @@
 import store from './store.js';
 import { ProductService } from '../services/product.service.js';
 import { CategoryService } from '../services/category.service.js';
+import { AuthHelper } from '../utils/auth.helper.js';
+import { AuthService } from '../services/auth.service.js';
+
+export const AuthActions = {
+    /**
+     * تسجيل الدخول وحفظ البيانات في الـ Store والتخزين الدائم
+     */
+    login: async (username, password) => {
+        store.setState({ auth: { ...store.getState().auth, loading: true, error: null } });
+
+        try {
+            const data = await AuthService.login(username, password);
+            AuthHelper.saveSession(data.accessToken, data);
+
+            store.setState({
+                auth: {
+                    user: data,
+                    token: data.accessToken,
+                    isAuthenticated: true,
+                    loading: false,
+                    error: null
+                }
+            });
+            return true;
+        } catch (error) {
+            store.setState({
+                auth: { ...store.getState().auth, loading: false, error: error.message }
+            });
+            return false;
+        }
+    },
+
+    /**
+     * تسجيل الخروج ومسح كل البيانات
+     */
+    logout: () => {
+        AuthHelper.clearSession();
+        store.setState({
+            auth: {
+                user: null,
+                token: null,
+                isAuthenticated: false,
+                loading: false,
+                error: null
+            },
+            cart: []
+        });
+        window.location.hash = '#/login';
+    },
+
+    /**
+     * استعادة الجلسة عند تشغيل التطبيق (F5)
+     */
+    initAuth: () => {
+        const token = AuthHelper.getToken();
+        const user = AuthHelper.getUser();
+
+        if (token && user) {
+            store.setState({
+                auth: {
+                    user: user,
+                    token: token,
+                    isAuthenticated: true,
+                    loading: false,
+                    error: null
+                }
+            });
+        }
+    }
+};
 
 export const ProductActions = {
     /**
@@ -109,7 +179,7 @@ export const UIActions = {
      */
     initTheme: () => {
         const savedTheme = localStorage.getItem('theme') || 'light';
-        
+
         if (savedTheme === 'dark') {
             document.documentElement.classList.add('dark');
         } else {

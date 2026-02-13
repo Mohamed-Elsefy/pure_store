@@ -3,9 +3,14 @@
 class Store {
     constructor() {
         this.state = {
-            // User and authentication data
-            user: null,
-            token: null,
+            // Authentication state (Grouped for clarity)
+            auth: {
+                user: null,          // Full user object from API
+                token: null,         // accessToken
+                isAuthenticated: false,
+                loading: false,      // Specific loading for auth actions
+                error: null          // For login/register error messages
+            },
 
             // Core data fetched from API (static after load)
             products: [],      // Raw list of products
@@ -29,7 +34,7 @@ class Store {
             // Other data
             cart: [],
             theme: localStorage.getItem('theme') || 'light',
-            loading: false // Loading indicator for products
+            loading: false // Loading for general content
         };
 
         // Listeners subscribed to state changes

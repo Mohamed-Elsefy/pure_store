@@ -38,11 +38,19 @@
             </a>
 
             <!-- Login link -->
-            <a href="/login" data-link
+            <a href="/login" data-link id="nav-login-link"
                 class="nav-link relative text-sm font-bold transition-colors duration-300 after:absolute after:left-0 after:-bottom-1 after:w-full after:h-0.5
                 after:bg-(--accent) after:rounded-full after:origin-left after:scale-x-0 after:transition-transform after:duration-300 hover:after:scale-x-100 hover:text-(--accent)">
                 Login
             </a>
+
+            <div id="nav-user-info" class="hidden items-center gap-4 border-l border-(--border-glass) pl-4 ml-2">
+                <span id="nav-username" class="text-sm font-bold text-(--text-primary)"></span>
+                <button id="logout-btn"
+                    class="text-xs font-bold text-red-500 hover:text-red-600 transition-colors cursor-pointer">
+                    Logout
+                </button>
+            </div>
 
         </div>
 

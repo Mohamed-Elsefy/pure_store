@@ -2,6 +2,7 @@ import { loadTemplate } from "../core/utils/template.loader.js";
 import { UIActions, ProductActions } from "../core/store/actions.js";
 import { ProductSelectors } from "../core/store/selectors.js";
 import store from '../core/store/store.js';
+import { AuthActions } from "../core/store/actions.js";
 
 /**
  * Render the navbar and initialize all interactions
@@ -30,6 +31,55 @@ const setupNavbarInteractions = () => {
     const resultsContainer = document.getElementById('search-results');
     const searchTemplate = document.getElementById('search-result-template');
     const themeIcon = themeBtn?.querySelector('i');
+    const logoutBtn = document.getElementById('logout-btn');
+
+    const updateAuthUI = () => {
+        const loginLink = document.getElementById('nav-login-link');
+        const userInfo = document.getElementById('nav-user-info');
+        const usernameSpan = document.getElementById('nav-username');
+
+        const { auth } = store.getState();
+
+        if (auth.isAuthenticated && auth.user) {
+            // إخفاء تسجيل الدخول
+            loginLink?.classList.add('hidden');
+
+            // إظهار معلومات المستخدم
+            if (userInfo) {
+                userInfo.classList.remove('hidden');
+                userInfo.classList.add('flex'); // نضمن إضافة flex هنا
+            }
+
+            if (usernameSpan) usernameSpan.textContent = auth.user.firstName;
+        } else {
+            // العكس عند تسجيل الخروج
+            loginLink?.classList.remove('hidden');
+            if (userInfo) {
+                userInfo.classList.add('hidden');
+                userInfo.classList.remove('flex');
+            }
+        }
+    };
+
+    // تشغيل التحديث فوراً عند التحميل
+    updateAuthUI();
+
+    // ربط زر تسجيل الخروج
+    logoutBtn?.addEventListener('click', () => {
+        AuthActions.logout();
+    });
+
+    // تحديث الـ Subscribe الحالي ليشمل مراقبة الـ Auth
+    store.subscribe(() => {
+        const state = store.getState();
+
+        // 1. تحديث البحث (كما كان)
+        const filtered = ProductSelectors.getFilteredProducts();
+        renderSearchDropdown(filtered.slice(0, 5), resultsContainer, searchTemplate);
+
+        // 2. تحديث واجهة المستخدم (جديد)
+        updateAuthUI();
+    });
 
     // Helper functions
     const closeMobileMenu = () => {
