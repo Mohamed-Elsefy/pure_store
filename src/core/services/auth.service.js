@@ -1,31 +1,42 @@
+// auth.service.js
+
 import httpService from './http.service.js';
 
 export class AuthService {
+
     /**
-     * تسجيل الدخول
-     * @param {string} username 
-     * @param {string} password 
+     * Authenticate user and create a session
+     * Sends username and password to the login endpoint.
+     * 
+     * @param {string} username - The user's username
+     * @param {string} password - The user's password
+     * @returns {Promise<Object>} Authentication response (token, user info, etc.)
      */
     static async login(username, password) {
         return await httpService.post('/auth/login', {
             username,
             password,
-            expiresInMins: 60
+            expiresInMins: 60 // Token expiration time (1 hour)
         });
     }
 
     /**
-     * جلب بيانات المستخدم الحالي
-     * ملاحظة: HttpService يضيف التوكين تلقائياً في الـ Headers
+     * Retrieve currently authenticated user data.
+     * Note: httpService automatically attaches the stored token
+     * to the request headers.
+     * 
+     * @returns {Promise<Object>} Current user information
      */
     static async getCurrentUser() {
-        // نستخدم endpoint الخاص بـ user/me أو auth/me حسب نسخة الـ API
+        // Using /auth/me endpoint (may vary depending on API version)
         return await httpService.get('/auth/me');
     }
 
     /**
-     * تحديث الجلسة (Refresh Token)
-     * @param {string} refreshToken 
+     * Refresh the authentication session using a refresh token.
+     * 
+     * @param {string} refreshToken - The refresh token issued during login
+     * @returns {Promise<Object>} New access token and session data
      */
     static async refreshToken(refreshToken) {
         return await httpService.post('/auth/refresh', {
@@ -34,8 +45,10 @@ export class AuthService {
     }
 
     /**
-     * إنشاء حساب جديد (محاكاة)
-     * @param {Object} userData 
+     * Register a new user (simulation endpoint).
+     * 
+     * @param {Object} userData - New user data (name, email, password, etc.)
+     * @returns {Promise<Object>} Created user response
      */
     static async register(userData) {
         return await httpService.post('/users/add', userData);

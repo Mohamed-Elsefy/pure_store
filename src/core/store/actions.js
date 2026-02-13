@@ -6,14 +6,39 @@ import { AuthHelper } from '../utils/auth.helper.js';
 import { AuthService } from '../services/auth.service.js';
 
 export const AuthActions = {
+
+    /**
+     * Authenticate user and update application state.
+     * 
+     * Steps:
+     * 1. Set loading state.
+     * 2. Call AuthService.login().
+     * 3. Save session (token + user data).
+     * 4. Update auth state in store.
+     * 5. (Optional) Merge guest cart with user cart.
+     * 
+     * @param {string} username
+     * @param {string} password
+     * @returns {Promise<boolean>} True if login succeeds, otherwise false
+     */
     login: async (username, password) => {
-        store.setState({ auth: { ...store.getState().auth, loading: true, error: null } });
+
+        // Set loading state before API call
+        store.setState({
+            auth: {
+                ...store.getState().auth,
+                loading: true,
+                error: null
+            }
+        });
 
         try {
             const data = await AuthService.login(username, password);
+
+            // Save session to localStorage
             AuthHelper.saveSession(data.accessToken, data);
 
-            // 1. تحديث حالة الأمان
+            // Update authentication state in store
             store.setState({
                 auth: {
                     user: data,
@@ -24,25 +49,50 @@ export const AuthActions = {
                 }
             });
 
-            // 2. 🟢 التعديل الجديد: دمج سلة الضيف بعد نجاح الدخول
-            // سنقوم بجلب السلة المحلية (Guest Cart) ودمجها مع حساب المستخدم
-            // await CartActions.mergeGuestCart();
+            /**
+             * 🟢 Future Enhancement:
+             * Merge guest cart with user cart after successful login.
+             * Example:
+             * await CartActions.mergeGuestCart();
+             */
 
             return true;
+
         } catch (error) {
+
+            // Handle login failure
             store.setState({
-                auth: { ...store.getState().auth, loading: false, error: error.message }
+                auth: {
+                    ...store.getState().auth,
+                    loading: false,
+                    error: error.message
+                }
             });
+
             return false;
         }
     },
 
+
+    /**
+     * Logout user and clear authentication state.
+     * 
+     * - Clears stored session.
+     * - Resets auth state.
+     * - Clears cart in store.
+     * - Redirects to login page.
+     */
     logout: () => {
+
+        // Clear session from localStorage
         AuthHelper.clearSession();
 
-        // 3. 🟢 تعديل تسجيل الخروج:
-        // نمسح بيانات المستخدم فقط، ونفرغ السلة في الـ Store 
-        // ولكن لا نمسح الـ LocalStorage الخاص بالسلة إذا أردت أن تظل موجودة للضيف القادم
+        /**
+         * 🟢 Logout behavior:
+         * - Reset authentication state.
+         * - Clear cart state in store.
+         * - Keep guest cart in localStorage (optional behavior).
+         */
         store.setState({
             auth: {
                 user: null,
@@ -54,10 +104,19 @@ export const AuthActions = {
             cart: [],
         });
 
+        // Redirect to login route
         window.location.hash = '#/login';
     },
 
+
+    /**
+     * Initialize authentication state on app startup.
+     * 
+     * - Checks if token and user data exist in localStorage.
+     * - Restores authentication state if session is valid.
+     */
     initAuth: () => {
+
         const token = AuthHelper.getToken();
         const user = AuthHelper.getUser();
 
@@ -74,6 +133,7 @@ export const AuthActions = {
         }
     }
 };
+
 
 export const ProductActions = {
     /**
