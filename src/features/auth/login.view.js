@@ -6,8 +6,8 @@ export class LoginView {
     }
 
     async render() {
-        const html = await loadTemplate('/src/features/auth/login.template.html');
-        this.appElement.innerHTML = html;
+        const template = await loadTemplate('/src/features/auth/login.template.html');
+        this.appElement.innerHTML = template;
     }
 
     showError(message) {

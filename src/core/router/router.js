@@ -1,6 +1,7 @@
 // src/core/router/router.js
 
 import { ROUTES } from '../config/routes.config.js';
+import store from '../store/store.js';
 
 class Router {
     constructor() {
@@ -39,16 +40,8 @@ class Router {
     }
 
     async route() {
-        /**
-         * Cleanup step:
-         * If there's a current controller and it has a 'destroy' method, call it
-         */
-        if (this.currentController && typeof this.currentController.destroy === 'function') {
-            this.currentController.destroy();
-        }
 
-        // Clear the app container before rendering new content
-        this.appElement.innerHTML = '';
+        const { auth } = store.getState();
 
         // Parse the hash to get base path and optional parameter
         let fullPath = window.location.hash.slice(1);
@@ -63,10 +56,34 @@ class Router {
             return;
         }
 
+        // If the route is for guests only and the user is logged in
+        if (route.guestOnly && auth.isAuthenticated) {
+            window.location.hash = '#/home';
+            return;
+        }
+
+        // If the route requires login and the user is not logged in
+        if (route.requiresAuth && !auth.isAuthenticated) {
+            window.location.hash = '#/login';
+            return;
+        }
+
+        /**
+         * Cleanup step:
+         * If there's a current controller and it has a 'destroy' method, call it
+         */
+        if (this.currentController && typeof this.currentController.destroy === 'function') {
+            this.currentController.destroy();
+        }
+
+        // Clear the app container before rendering new content
+        this.appElement.innerHTML = '';
+
         try {
             // Dynamically import the feature controller module
             const module = await import(route.importPath);
             const ControllerClass = module[route.controller];
+
             if (!ControllerClass) {
                 throw new Error(`Controller ${route.controller} not found in ${route.importPath}`);
             }

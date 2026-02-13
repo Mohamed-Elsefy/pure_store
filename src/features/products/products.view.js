@@ -1,6 +1,5 @@
 // src/features/products/products.view.js
 import { loadTemplate } from '../../core/utils/template.loader.js';
-import { Spinner } from '../../core/utils/spinner.js';
 
 /**
  * ProductsView

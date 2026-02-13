@@ -6,9 +6,6 @@ import { AuthHelper } from '../utils/auth.helper.js';
 import { AuthService } from '../services/auth.service.js';
 
 export const AuthActions = {
-    /**
-     * تسجيل الدخول وحفظ البيانات في الـ Store والتخزين الدائم
-     */
     login: async (username, password) => {
         store.setState({ auth: { ...store.getState().auth, loading: true, error: null } });
 
@@ -16,6 +13,7 @@ export const AuthActions = {
             const data = await AuthService.login(username, password);
             AuthHelper.saveSession(data.accessToken, data);
 
+            // 1. تحديث حالة الأمان
             store.setState({
                 auth: {
                     user: data,
@@ -25,6 +23,11 @@ export const AuthActions = {
                     error: null
                 }
             });
+
+            // 2. 🟢 التعديل الجديد: دمج سلة الضيف بعد نجاح الدخول
+            // سنقوم بجلب السلة المحلية (Guest Cart) ودمجها مع حساب المستخدم
+            // await CartActions.mergeGuestCart();
+
             return true;
         } catch (error) {
             store.setState({
@@ -34,11 +37,12 @@ export const AuthActions = {
         }
     },
 
-    /**
-     * تسجيل الخروج ومسح كل البيانات
-     */
     logout: () => {
         AuthHelper.clearSession();
+
+        // 3. 🟢 تعديل تسجيل الخروج:
+        // نمسح بيانات المستخدم فقط، ونفرغ السلة في الـ Store 
+        // ولكن لا نمسح الـ LocalStorage الخاص بالسلة إذا أردت أن تظل موجودة للضيف القادم
         store.setState({
             auth: {
                 user: null,
@@ -47,14 +51,12 @@ export const AuthActions = {
                 loading: false,
                 error: null
             },
-            cart: []
+            cart: [],
         });
+
         window.location.hash = '#/login';
     },
 
-    /**
-     * استعادة الجلسة عند تشغيل التطبيق (F5)
-     */
     initAuth: () => {
         const token = AuthHelper.getToken();
         const user = AuthHelper.getUser();

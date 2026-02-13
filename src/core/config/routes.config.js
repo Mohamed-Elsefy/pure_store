@@ -17,10 +17,11 @@ export const ROUTES = {
     },
     '/login': {
         controller: 'AuthController',
-        importPath: '/src/features/auth/auth.controller.js'
+        importPath: '/src/features/auth/auth.controller.js',
+        guestOnly: true
     },
     '/cart': {
         controller: 'CartController',
-        importPath: '/src/features/cart/cart.controller.js'
+        importPath: '/src/features/cart/cart.controller.js',
     }
 };

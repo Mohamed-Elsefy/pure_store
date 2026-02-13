@@ -30,7 +30,7 @@ export class AuthController {
 
         if (success) {
             // توجيه المستخدم لصفحة المنتجات
-            window.location.hash = '#/products';
+            window.location.hash = '#/home';
         } else {
             this.view.setLoading(false);
             // جلب رسالة الخطأ من الـ Store
