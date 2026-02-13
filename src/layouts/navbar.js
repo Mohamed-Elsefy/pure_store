@@ -2,6 +2,7 @@ import { loadTemplate } from "../core/utils/template.loader.js";
 import { UIActions, ProductActions } from "../core/store/actions.js";
 import { ProductSelectors } from "../core/store/selectors.js";
 import store from '../core/store/store.js';
+import { AuthActions } from "../core/store/actions.js";
 
 /**
  * Render the navbar and initialize all interactions
@@ -30,6 +31,77 @@ const setupNavbarInteractions = () => {
     const resultsContainer = document.getElementById('search-results');
     const searchTemplate = document.getElementById('search-result-template');
     const themeIcon = themeBtn?.querySelector('i');
+    const logoutBtn = document.getElementById('logout-btn');
+
+    // Function responsible for updating Navbar UI based on authentication state
+    const updateAuthUI = () => {
+        // Get navbar elements
+        const loginLink = document.getElementById('nav-login-link');
+        const userInfo = document.getElementById('nav-user-info');
+        const usernameSpan = document.getElementById('nav-username');
+        const logoutBtn = document.getElementById('logout-btn'); // Logout icon/button
+
+        // Get current auth state from the store
+        const { auth } = store.getState();
+
+        if (auth.isAuthenticated && auth.user) {
+            // ===============================
+            // Authenticated User State
+            // ===============================
+
+            // Hide login link
+            loginLink?.classList.add('hidden');
+
+            // Show user info (e.g., "Hi, Username")
+            userInfo?.classList.remove('hidden');
+            userInfo?.classList.add('flex');
+
+            // Display user's first name
+            if (usernameSpan) usernameSpan.textContent = auth.user.firstName;
+
+            // Show logout button
+            logoutBtn?.classList.remove('hidden');
+            logoutBtn?.classList.add('flex');
+
+        } else {
+            // ===============================
+            // Guest (Not Authenticated) State
+            // ===============================
+
+            // Show login link
+            loginLink?.classList.remove('hidden');
+
+            // Hide user info
+            userInfo?.classList.add('hidden');
+            userInfo?.classList.remove('flex');
+
+            // Hide logout button
+            logoutBtn?.classList.add('hidden');
+            logoutBtn?.classList.remove('flex');
+        }
+    };
+
+    // Initial UI update on load
+    updateAuthUI();
+
+    // Attach logout button click handler
+    logoutBtn?.addEventListener('click', () => {
+        // Dispatch logout action
+        AuthActions.logout();
+    });
+
+    // Subscribe to store updates
+    store.subscribe(() => {
+        const state = store.getState();
+
+        // 1. Update search dropdown results (existing behavior)
+        const filtered = ProductSelectors.getFilteredProducts();
+        renderSearchDropdown(filtered.slice(0, 5), resultsContainer, searchTemplate);
+
+        // 2. Update authentication UI when state changes
+        updateAuthUI();
+    });
+
 
     // Helper functions
     const closeMobileMenu = () => {

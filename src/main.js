@@ -7,22 +7,22 @@ import './core/router/router.js';
 import { renderNavbar } from './layouts/navbar.js';
 import { renderFooter } from './layouts/footer.js';
 
-// Import store actions for UI and products
-import { UIActions } from './core/store/actions.js';
-import { ProductActions } from './core/store/actions.js';
+// Import store actions for UI, Auth, and products
+import { UIActions, ProductActions, AuthActions } from './core/store/actions.js';
 
 /**
  * Application bootstrap function
  * Responsible for initializing global UI components and fetching initial data
  */
 const bootstrap = async () => {
-    // 1. Render global layout components (Navbar and Footer) concurrently
-    await Promise.all([renderNavbar(), renderFooter()]);
 
-    // 2. Initialize the theme (light/dark) from store or local storage
+    AuthActions.initAuth();
     UIActions.initTheme();
 
-    // 3. Initialize product data for the products page
+    //Render global layout components (Navbar and Footer) concurrently
+    await Promise.all([renderNavbar(), renderFooter()]);
+
+    // Initialize product data for the products page
     // Note: Not using await here so that the UI is not blocked during fetch
     ProductActions.initializeProductsPage();
 };
