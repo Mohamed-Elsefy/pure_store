@@ -16,7 +16,8 @@ export class ProductDetailsController {
     constructor(params) {
         this.productId = params.id;
         this.unsubscribe = null;
-        this.isFetching = false; // Prevent duplicate fetches
+        this.isFetching = false;
+        this.currentQuantity = 1;
     }
 
     /**
@@ -89,13 +90,49 @@ export class ProductDetailsController {
     }
 
     /**
+     * update quntity price
+     */
+    updateQuantityUI(price) {
+        const qtyValue = document.getElementById('qty-value');
+        const qtyTotal = document.getElementById('qty-total-price');
+
+        if (qtyValue) qtyValue.textContent = this.currentQuantity;
+        if (qtyTotal) {
+            const total = (this.currentQuantity * price).toFixed(2);
+            qtyTotal.textContent = `$${total}`;
+        }
+    }
+
+    /**
  * Bind UI events (e.g., Add to Cart button)
  * @param {Object} product - Product object to be added to cart
  */
     bindEvents(product) {
-        // Select the Add to Cart button
+
         const btn = document.querySelector('.add-to-cart-btn');
-        if (!btn) return;
+        const qtyMinus = document.getElementById('qty-minus');
+        const qtyPlus = document.getElementById('qty-plus');
+
+        if (!btn || !qtyMinus || !qtyPlus) return;
+        this.updateQuantityUI(product.price);
+
+        // Reduce the quantity
+        qtyMinus.onclick = () => {
+            if (this.currentQuantity > 1) {
+                this.currentQuantity--;
+                this.updateQuantityUI(product.price);
+            }
+        };
+
+        // Increase the quantity
+        qtyPlus.onclick = () => {
+            if (this.currentQuantity < product.stock) {
+                this.currentQuantity++;
+                this.updateQuantityUI(product.price);
+            } else {
+                Toast.show("Limit reached", "info");
+            }
+        };
 
         // Store original button content outside click handler
         // This ensures we can restore it after visual feedback
@@ -109,18 +146,21 @@ export class ProductDetailsController {
             btn.disabled = true;
 
             try {
-                // Add product to cart with quantity = 1
-                await CartActions.addItem(product, 1);
+                // Add product to cart with quantity = currentQuantity
+                await CartActions.addItem(product, this.currentQuantity);
 
                 // Provide visual feedback on the button itself
                 btn.innerHTML = '<i class="fa-solid fa-check"></i> Added!';
-                btn.classList.add('bg-green-500', 'text-white');
 
                 // Restore original button state after 2 seconds
                 setTimeout(() => {
                     btn.innerHTML = originalContent;
-                    btn.classList.remove('bg-green-500', 'text-white');
                     btn.disabled = false;
+
+                    // reset quantity
+                    this.currentQuantity = 1;
+                    qtyValue.textContent = "1";
+                    this.updateQuantityUI(product.price);
                 }, 1300);
 
             } catch (error) {

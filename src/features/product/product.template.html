@@ -57,13 +57,39 @@
             <div data-price class="text-4xl font-extrabold text-(--accent)">
             </div>
 
+            <!-- Quantity Picker -->
+            <div
+                class="flex items-center justify-between gap-4 bg-(--bg-surface) border border-(--border-glass) rounded-2xl p-2">
+                <div class="flex items-center gap-3">
+
+                    <!-- Increase the quantity -->
+                    <button id="qty-minus"
+                        class="w-10 h-10 rounded-xl hover:bg-(--accent) hover:text-white transition-all">
+                        <i class="fa-solid fa-minus"></i>
+                    </button>
+
+                    <span id="qty-value" class="w-8 text-center font-bold text-lg">1</span>
+
+                    <!-- Reduce the quantity -->
+                    <button id="qty-plus"
+                        class="w-10 h-10 rounded-xl hover:bg-(--accent) hover:text-white transition-all">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                </div>
+
+                <div class="pr-2 border-l border-(--border-glass) pl-4">
+                    <span class="text-xs text-(--text-secondary) block">Total</span>
+                    <span id="qty-total-price" class="font-bold text-xl text-(--accent)">$0.00</span>
+                </div>
+            </div>
+
             <!-- Product description -->
             <p data-description class="leading-relaxed text-(--text-secondary)">
             </p>
 
             <!-- Add to cart button -->
             <button
-                class="add-to-cart-btn w-full py-3 rounded-2xl border border-(--accent) text-(--accent) hover:bg-(--accent) hover:text-white  transition-all">
+                class="add-to-cart-btn w-full py-3 mt-11 rounded-2xl border border-(--accent) text-(--accent) hover:bg-(--accent) hover:text-white  transition-all">
                 Add to Cart
             </button>
 
