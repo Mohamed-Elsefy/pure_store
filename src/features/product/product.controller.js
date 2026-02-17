@@ -1,9 +1,12 @@
 // src/features/product/product.controller.js
+
+import store from '../../core/store/store.js';
 import { loadTemplate } from '../../core/utils/template.loader.js';
 import { ProductService } from '../../core/services/product.service.js';
 import { ProductDetailsView } from './product.view.js';
-import store from '../../core/store/store.js';
 import { UILoader } from '../../core/utils/ui.loader.js';
+import { CartActions } from '../../core/store/actions.js';
+import { Toast } from '../../core/utils/toast.js';
 
 export class ProductDetailsController {
     /**
@@ -13,7 +16,8 @@ export class ProductDetailsController {
     constructor(params) {
         this.productId = params.id;
         this.unsubscribe = null;
-        this.isFetching = false; // Prevent duplicate fetches
+        this.isFetching = false;
+        this.currentQuantity = 1;
     }
 
     /**
@@ -86,14 +90,86 @@ export class ProductDetailsController {
     }
 
     /**
-     * Bind UI events, e.g., Add to Cart button
-     * @param {Object} product - Product object
+     * update quntity price
      */
-    bindEvents(product) {
-        const btn = document.querySelector('.add-to-cart-btn');
-        if (btn) {
-            btn.onclick = () => console.log('Added to cart:', product.id);
+    updateQuantityUI(price) {
+        const qtyValue = document.getElementById('qty-value');
+        const qtyTotal = document.getElementById('qty-total-price');
+
+        if (qtyValue) qtyValue.textContent = this.currentQuantity;
+        if (qtyTotal) {
+            const total = (this.currentQuantity * price).toFixed(2);
+            qtyTotal.textContent = `$${total}`;
         }
+    }
+
+    /**
+ * Bind UI events (e.g., Add to Cart button)
+ * @param {Object} product - Product object to be added to cart
+ */
+    bindEvents(product) {
+
+        const btn = document.querySelector('.add-to-cart-btn');
+        const qtyMinus = document.getElementById('qty-minus');
+        const qtyPlus = document.getElementById('qty-plus');
+
+        if (!btn || !qtyMinus || !qtyPlus) return;
+        this.updateQuantityUI(product.price);
+
+        // Reduce the quantity
+        qtyMinus.onclick = () => {
+            if (this.currentQuantity > 1) {
+                this.currentQuantity--;
+                this.updateQuantityUI(product.price);
+            }
+        };
+
+        // Increase the quantity
+        qtyPlus.onclick = () => {
+            if (this.currentQuantity < product.stock) {
+                this.currentQuantity++;
+                this.updateQuantityUI(product.price);
+            } else {
+                Toast.show("Limit reached", "info");
+            }
+        };
+
+        // Store original button content outside click handler
+        // This ensures we can restore it after visual feedback
+        const originalContent = btn.innerHTML;
+
+        btn.onclick = async (e) => {
+            e.preventDefault();
+
+            // Prevent multiple clicks while processing
+            if (btn.disabled) return;
+            btn.disabled = true;
+
+            try {
+                // Add product to cart with quantity = currentQuantity
+                await CartActions.addItem(product, this.currentQuantity);
+
+                // Provide visual feedback on the button itself
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Added!';
+
+                // Restore original button state after 2 seconds
+                setTimeout(() => {
+                    btn.innerHTML = originalContent;
+                    btn.disabled = false;
+
+                    // reset quantity
+                    this.currentQuantity = 1;
+                    this.updateQuantityUI(product.price);
+                }, 1300);
+
+            } catch (error) {
+                // Show error message if adding fails
+                Toast.show("Failed to add item", "error");
+
+                // Re-enable button to allow retry
+                btn.disabled = false;
+            }
+        };
     }
 
     /**

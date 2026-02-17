@@ -1,8 +1,9 @@
+import store from '../core/store/store.js';
 import { loadTemplate } from "../core/utils/template.loader.js";
 import { UIActions, ProductActions } from "../core/store/actions.js";
 import { ProductSelectors } from "../core/store/selectors.js";
-import store from '../core/store/store.js';
 import { AuthActions } from "../core/store/actions.js";
+import { CartSelectors } from '../core/store/selectors.js';
 
 /**
  * Render the navbar and initialize all interactions
@@ -32,6 +33,22 @@ const setupNavbarInteractions = () => {
     const searchTemplate = document.getElementById('search-result-template');
     const themeIcon = themeBtn?.querySelector('i');
     const logoutBtn = document.getElementById('logout-btn');
+    const cartBadge = document.getElementById('cart-badge');
+
+    // qunatity of cart
+    const updateCartBadge = () => {
+        const count = CartSelectors.getUniqueItemsCount();
+        if (cartBadge) {
+            if (count > 0) {
+                cartBadge.textContent = count;
+                cartBadge.classList.remove('hidden');
+            } else {
+                cartBadge.classList.add('hidden');
+            }
+        }
+    };
+    // Initial update when the page loads
+    updateCartBadge();
 
     // Function responsible for updating Navbar UI based on authentication state
     const updateAuthUI = () => {
@@ -45,9 +62,6 @@ const setupNavbarInteractions = () => {
         const { auth } = store.getState();
 
         if (auth.isAuthenticated && auth.user) {
-            // ===============================
-            // Authenticated User State
-            // ===============================
 
             // Hide login link
             loginLink?.classList.add('hidden');
@@ -64,9 +78,6 @@ const setupNavbarInteractions = () => {
             logoutBtn?.classList.add('flex');
 
         } else {
-            // ===============================
-            // Guest (Not Authenticated) State
-            // ===============================
 
             // Show login link
             loginLink?.classList.remove('hidden');
@@ -165,6 +176,7 @@ const setupNavbarInteractions = () => {
     store.subscribe(() => {
         const filtered = ProductSelectors.getFilteredProducts();
         renderSearchDropdown(filtered.slice(0, 5), resultsContainer, searchTemplate);
+        updateCartBadge();
     });
 
     // Global click listener

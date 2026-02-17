@@ -1,8 +1,8 @@
 // src/features/products/products.controller.js
 
+import store from '../../core/store/store.js';
 import { loadTemplate } from '../../core/utils/template.loader.js';
 import { ProductsView } from './products.view.js';
-import store from '../../core/store/store.js';
 import { ProductActions } from '../../core/store/actions.js';
 import { ProductSelectors } from '../../core/store/selectors.js';
 import { UILoader } from '../../core/utils/ui.loader.js';
@@ -182,7 +182,7 @@ export class ProductsController {
 
     destroy() {
         if (this.unsubscribe) this.unsubscribe();
-        ProductActions.resetFilters();
+        // ProductActions.resetFilters();
         clearTimeout(this._closeSidebarTimeout);
     }
 }
