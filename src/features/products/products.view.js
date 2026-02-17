@@ -11,6 +11,7 @@ export const ProductsView = {
     // Current pagination state
     currentPage: 1,
     totalPages: 1,
+    currentProducts: [],
 
     /**
      * Load and render the sidebar layout
@@ -37,6 +38,8 @@ export const ProductsView = {
     renderProducts(products, cardTemplate) {
         const grid = document.getElementById('products-grid');
         if (!grid) return;
+
+        this.currentProducts = products;
 
         // Show empty state if no products
         if (!products || products.length === 0) {
@@ -65,7 +68,7 @@ export const ProductsView = {
         this.renderPagination();
 
         // Bind click events to product cards
-        this.bindProductClick(products)
+        this.bindProductClick();
     },
 
     /**
@@ -150,7 +153,7 @@ export const ProductsView = {
  * 
  * @param {Array} products - List of available products
  */
-    bindProductClick(products) {
+    bindProductClick() {
         const grid = document.getElementById('products-grid');
 
         // Prevent rebinding events multiple times
@@ -169,9 +172,7 @@ export const ProductsView = {
                 const id = addToCartBtn.dataset.id;
 
                 // Find the selected product by ID
-                const product = products.find(
-                    p => String(p.id) === String(id)
-                );
+                const product = this.currentProducts.find(p => String(p.id) === String(id));
 
                 if (product) {
                     // Show loading spinner inside button
