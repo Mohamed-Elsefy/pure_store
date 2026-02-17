@@ -1,9 +1,12 @@
 // src/features/product/product.controller.js
+
+import store from '../../core/store/store.js';
 import { loadTemplate } from '../../core/utils/template.loader.js';
 import { ProductService } from '../../core/services/product.service.js';
 import { ProductDetailsView } from './product.view.js';
-import store from '../../core/store/store.js';
 import { UILoader } from '../../core/utils/ui.loader.js';
+import { CartActions } from '../../core/store/actions.js';
+import { Toast } from '../../core/utils/toast.js';
 
 export class ProductDetailsController {
     /**
@@ -86,14 +89,48 @@ export class ProductDetailsController {
     }
 
     /**
-     * Bind UI events, e.g., Add to Cart button
-     * @param {Object} product - Product object
-     */
+ * Bind UI events (e.g., Add to Cart button)
+ * @param {Object} product - Product object to be added to cart
+ */
     bindEvents(product) {
+        // Select the Add to Cart button
         const btn = document.querySelector('.add-to-cart-btn');
-        if (btn) {
-            btn.onclick = () => console.log('Added to cart:', product.id);
-        }
+        if (!btn) return;
+
+        // Store original button content outside click handler
+        // This ensures we can restore it after visual feedback
+        const originalContent = btn.innerHTML;
+
+        btn.onclick = async (e) => {
+            e.preventDefault();
+
+            // Prevent multiple clicks while processing
+            if (btn.disabled) return;
+            btn.disabled = true;
+
+            try {
+                // Add product to cart with quantity = 1
+                await CartActions.addItem(product, 1);
+
+                // Provide visual feedback on the button itself
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Added!';
+                btn.classList.add('bg-green-500', 'text-white');
+
+                // Restore original button state after 2 seconds
+                setTimeout(() => {
+                    btn.innerHTML = originalContent;
+                    btn.classList.remove('bg-green-500', 'text-white');
+                    btn.disabled = false;
+                }, 1300);
+
+            } catch (error) {
+                // Show error message if adding fails
+                Toast.show("Failed to add item", "error");
+
+                // Re-enable button to allow retry
+                btn.disabled = false;
+            }
+        };
     }
 
     /**

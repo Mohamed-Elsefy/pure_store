@@ -1,5 +1,7 @@
 // src/features/products/products.view.js
 import { loadTemplate } from '../../core/utils/template.loader.js';
+import { CartActions } from '../../core/store/actions.js';
+import { Toast } from '../../core/utils/toast.js';
 
 /**
  * ProductsView
@@ -63,7 +65,7 @@ export const ProductsView = {
         this.renderPagination();
 
         // Bind click events to product cards
-        this.bindProductClick();
+        this.bindProductClick(products)
     },
 
     /**
@@ -141,25 +143,64 @@ export const ProductsView = {
     },
 
     /**
-     * Bind click events on product cards
-     * Navigates to product details or logs add-to-cart
-     */
-    bindProductClick() {
+ * Bind click events on product cards
+ * Handles both:
+ * 1) Add to Cart button inside the card
+ * 2) Navigation to product details page
+ * 
+ * @param {Array} products - List of available products
+ */
+    bindProductClick(products) {
         const grid = document.getElementById('products-grid');
-        grid?.addEventListener('click', (e) => {
-            const card = e.target.closest('.product-card');
+
+        // Prevent rebinding events multiple times
+        if (!grid || grid.dataset.bound === 'true') return;
+        grid.dataset.bound = 'true';
+
+        grid.addEventListener('click', async (e) => {
+
+            // Check if Add to Cart button was clicked
             const addToCartBtn = e.target.closest('.add-to-cart-btn');
 
-            if (card && !addToCartBtn) {
-                const id = card.dataset.productId;
-                window.location.hash = `#/product/${id}`;
+            if (addToCartBtn) {
+                e.preventDefault();
+                e.stopPropagation(); // Prevent triggering card navigation
+
+                const id = addToCartBtn.dataset.id;
+
+                // Find the selected product by ID
+                const product = products.find(
+                    p => String(p.id) === String(id)
+                );
+
+                if (product) {
+                    // Show loading spinner inside button
+                    const originalIcon = addToCartBtn.innerHTML;
+                    addToCartBtn.innerHTML =
+                        '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+                    // Add item to cart
+                    await CartActions.addItem(product, 1);
+
+                    // Restore original button icon after short delay
+                    setTimeout(() => {
+                        addToCartBtn.innerHTML = originalIcon;
+                    }, 1000);
+                }
+
+                return; // Stop here to avoid navigating to details page
             }
 
-            if (addToCartBtn) {
-                const id = addToCartBtn.dataset.id;
-                // Call add-to-cart action later
-                console.log('Added to cart:', id);
+            // Handle navigation to product details page
+            const card = e.target.closest('.product-card');
+
+            if (card) {
+                const id = card.dataset.productId;
+
+                // Navigate using hash-based routing
+                window.location.hash = `#/product/${id}`;
             }
         });
-    },
+    }
+
 };

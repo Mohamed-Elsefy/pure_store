@@ -1,0 +1,85 @@
+<div class="container mx-auto px-4 py-24 min-h-screen">
+    <!-- Page Title -->
+    <h1 class="text-3xl font-bold mb-8 text-(--text-primary)">
+        Your Shopping Cart
+    </h1>
+
+    <div id="cart-content" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Cart Items List (dynamic content injected here) -->
+        <div class="lg:col-span-2 space-y-4" id="cart-items-list"></div>
+
+        <!-- Order Summary Panel -->
+        <div class="lg:col-span-1">
+            <div class="bg-(--bg-surface) p-6 rounded-3xl border border-(--border-glass) shadow-xl sticky top-24">
+                <!-- Summary Title -->
+                <h2 class="text-xl font-bold mb-4">Order Summary</h2>
+
+                <!-- Totals Section -->
+                <div class="space-y-3 border-b border-(--border-glass) pb-4 mb-4">
+                    <!-- Total Items Count -->
+                    <div class="flex justify-between">
+                        <span class="text-(--text-secondary)">Total Items</span>
+                        <span id="summary-count" class="font-bold">0</span>
+                    </div>
+                    <!-- Total Price -->
+                    <div class="flex justify-between text-xl font-bold text-(--accent)">
+                        <span>Total Price</span>
+                        <span>$<span id="summary-total">0.00</span></span>
+                    </div>
+                </div>
+
+                <!-- Checkout Button -->
+                <button id="checkout-btn"
+                    class="w-full bg-(--accent) text-white py-4 rounded-2xl font-bold hover:opacity-90 transition-all shadow-lg shadow-(--accent)/20">
+                    Proceed to Checkout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty Cart Message -->
+    <div id="empty-cart-msg" class="hidden flex-col items-center justify-center py-20">
+        <!-- Cart Icon -->
+        <i class="fa-solid fa-cart-shopping text-6xl text-(--text-secondary) mb-4 opacity-20"></i>
+        <!-- Empty Cart Text -->
+        <p class="text-xl text-(--text-secondary) mb-6">Your cart is empty</p>
+        <!-- Link to Products Page -->
+        <a href="/products" data-link class="bg-(--accent) text-white px-8 py-3 rounded-full font-bold">
+            Start Shopping
+        </a>
+    </div>
+</div>
+
+<!-- Template for individual cart item -->
+<template id="cart-item-template">
+    <div
+        class="cart-item flex items-center gap-4 bg-(--bg-surface) p-4 rounded-2xl border border-(--border-glass) transition-all hover:shadow-md">
+        <!-- Product Image -->
+        <img src="" alt="" class="item-img w-20 h-20 object-cover rounded-xl bg-(--bg-primary)">
+
+        <!-- Product Info -->
+        <div class="flex-1">
+            <h3 class="item-title font-bold text-sm md:text-base"></h3>
+            <p class="item-price text-(--accent) font-bold"></p>
+        </div>
+
+        <!-- Quantity Controls -->
+        <div class="flex items-center gap-3 bg-(--bg-primary) rounded-full px-3 py-1 border border-(--border-glass)">
+            <!-- Decrease Quantity -->
+            <button class="minus-btn hover:text-(--accent) transition-colors">
+                <i class="fa-solid fa-minus text-xs"></i>
+            </button>
+            <!-- Quantity Display -->
+            <span class="item-qty font-bold text-sm min-w-5 text-center">1</span>
+            <!-- Increase Quantity -->
+            <button class="plus-btn hover:text-(--accent) transition-colors">
+                <i class="fa-solid fa-plus text-xs"></i>
+            </button>
+        </div>
+
+        <!-- Remove Item Button -->
+        <button class="remove-btn text-red-500/50 hover:text-red-500 p-2 transition-colors">
+            <i class="fa-solid fa-trash-can"></i>
+        </button>
+    </div>
+</template>

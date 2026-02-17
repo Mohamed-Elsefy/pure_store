@@ -66,3 +66,44 @@ export const ProductSelectors = {
         };
     }
 };
+
+export const CartSelectors = {
+
+    /**
+     * Retrieve all cart items from the Store
+     * Returns an empty array if cart is undefined
+     */
+    getCartItems: () => store.getState().cart || [],
+
+    /**
+     * Calculate total number of items in the cart
+     * Used for displaying cart badge in Navbar or summary section
+     */
+    getCartCount: () => {
+        const { cart } = store.getState();
+
+        // Sum all item quantities (fallback to 0 if undefined)
+        return cart.reduce((total, item) => {
+            return total + (item.quantity || 0);
+        }, 0);
+    },
+
+    /**
+     * Calculate total monetary value of the cart
+     * Multiplies price by quantity for each item
+     * Returns formatted value with 2 decimal places
+     */
+    getCartTotal: () => {
+        const { cart } = store.getState();
+
+        const total = cart.reduce((total, item) => {
+            const price = item.price || 0;
+            const quantity = item.quantity || 0;
+
+            return total + (price * quantity);
+        }, 0);
+
+        // Format to 2 decimal places for currency display
+        return total.toFixed(2);
+    }
+};

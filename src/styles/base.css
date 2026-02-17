@@ -104,3 +104,33 @@ body {
     color: var(--accent) !important;
     /* Optional emphasis */
 }
+
+/* ===================== toast ===================== */
+
+/* 
+ * Toast slide-in animation
+ * Animates the toast from the right side into view
+ */
+@keyframes toast-in {
+    from {
+        /* Start off-screen to the right and invisible */
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        /* End at normal position and fully visible */
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/*
+ * Utility class to apply the toast-in animation
+ * Duration: 0.3s
+ * Easing: ease-out for smooth entrance
+ * Forwards: keeps final animation state
+ */
+.animate-toast-in {
+    animation: toast-in 0.3s ease-out forwards;
+}
