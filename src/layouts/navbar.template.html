@@ -33,8 +33,12 @@
             <!-- Cart link -->
             <a href="/cart" data-link
                 class="nav-link relative text-sm font-bold transition-colors duration-300 after:absolute after:left-0 after:-bottom-1 after:w-full after:h-0.5
-                after:bg-(--accent) after:rounded-full after:origin-left after:scale-x-0 after:transition-transform after:duration-300 hover:after:scale-x-100 hover:text-(--accent)">
+                after:bg-(--accent) after:rounded-full after:origin-left after:scale-x-0 after:transition-transform after:duration-300 hover:after:scale-x-100 hover:text-(--accent) flex items-center gap-1">
                 Cart
+                <span id="cart-badge"
+                    class="hidden bg-(--accent) text-white text-[10px] px-1.5 py-0.5 rounded-full min-w-4.5 text-center">
+                    0
+                </span>
             </a>
 
             <!-- Login link -->

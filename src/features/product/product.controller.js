@@ -159,7 +159,6 @@ export class ProductDetailsController {
 
                     // reset quantity
                     this.currentQuantity = 1;
-                    qtyValue.textContent = "1";
                     this.updateQuantityUI(product.price);
                 }, 1300);
 

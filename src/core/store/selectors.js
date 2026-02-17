@@ -89,6 +89,14 @@ export const CartSelectors = {
     },
 
     /**
+     * Count the number of different types of products in the basket
+     */
+    getUniqueItemsCount: () => {
+        const { cart } = store.getState();
+        return cart.length;
+    },
+
+    /**
      * Calculate total monetary value of the cart
      * Multiplies price by quantity for each item
      * Returns formatted value with 2 decimal places
