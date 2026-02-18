@@ -5,18 +5,36 @@ import { AuthHelper } from '../utils/auth.helper.js';
 import { AuthService } from '../services/auth.service.js';
 import { CartActions } from './cart.actions.js';
 import { Toast } from '../utils/toast.js';
+import { CartPersistence } from '../utils/cart.persistence.js';
 
-const persistCart = (cart, userId = null) => {
-    // Save the current cart state as a JSON string
-    localStorage.setItem('purestore_cart', JSON.stringify(cart));
-
-    // save a copy of cart
-    if (userId) {
-        localStorage.setItem(`cart_user_${userId}`, JSON.stringify(cart));
-    }
-};
 
 export const AuthActions = {
+
+    register: async (userData) => {
+        store.setState({ auth: { ...store.getState().auth, loading: true, error: null } });
+        try {
+            const newUser = await AuthService.register(userData);
+
+            if (newUser && newUser.id) {
+                // الحصول على سلة الضيف الحالية من الـ Store
+                const currentGuestCart = store.getState().cart || [];
+
+                // استخدام الـ helper لحفظها للمستخدم الجديد فوراً
+                CartPersistence.save(currentGuestCart, newUser.id);
+            }
+
+            store.setState({ auth: { ...store.getState().auth, loading: false } });
+            Toast.show(`Account created! Welcome ${newUser.firstName}`, 'success');
+            return true;
+        } catch (error) {
+            store.setState({
+                auth: { ...store.getState().auth, loading: false, error: error.message }
+            });
+            Toast.show('Registration failed. Please try again.', 'error');
+            return false;
+        }
+    },
+
     /**
      * Authenticate user and update application state.
      * 
@@ -72,7 +90,7 @@ export const AuthActions = {
                 auth: { user: data, token: data.accessToken, isAuthenticated: true, loading: false }
             });
 
-            persistCart(finalCart, data.id);
+            CartPersistence.save(finalCart, data.id);
 
             Toast.show(`Welcome ${data.username}`, 'success');
             return true;
@@ -96,17 +114,23 @@ export const AuthActions = {
     logout: () => {
         const { auth, cart } = store.getState();
 
-        // save cart copy to local
-        if (auth.user) {
-            localStorage.setItem(`cart_user_${auth.user.id}`, JSON.stringify(cart));
+        // 🟢 استخدام الـ Helper بدلاً من الـ localStorage مباشرة لضمان الأمان
+        if (auth.user && auth.user.id) {
+            CartPersistence.save(cart, auth.user.id);
         }
 
         AuthHelper.clearSession();
+
+        // مسح السلة "النشطة" فقط، السلال الخاصة بالمستخدمين محفوظة في مفاتيحهم
         localStorage.removeItem('purestore_cart');
+
+        // 🟢 إضافة خطوة تنظيف يدوية للمفاتيح المشوهة لمرة واحدة
+        localStorage.removeItem('cart_user_undefined');
+        localStorage.removeItem('cart_user_null');
 
         store.setState({
             auth: { user: null, token: null, isAuthenticated: false, loading: false, error: null },
-            cart: [],
+            cart: [], // تفريغ الـ Store فوراً
         });
 
         window.location.hash = '#/login';
@@ -123,15 +147,9 @@ export const AuthActions = {
         const token = AuthHelper.getToken();
         const user = AuthHelper.getUser();
 
-        if (token && user) {
+        if (token && user && user.id && user.id !== 'undefined') {
             store.setState({
-                auth: {
-                    user: user,
-                    token: token,
-                    isAuthenticated: true,
-                    loading: false,
-                    error: null
-                }
+                auth: { user, token, isAuthenticated: true, loading: false, error: null }
             });
 
             const localCart = JSON.parse(localStorage.getItem('purestore_cart') || '[]');
@@ -140,6 +158,8 @@ export const AuthActions = {
             } else {
                 store.setState({ cart: localCart });
             }
+        } else {
+            AuthHelper.clearSession();
         }
     }
 };

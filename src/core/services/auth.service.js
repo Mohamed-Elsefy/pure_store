@@ -1,6 +1,7 @@
 // auth.service.js
 
 import httpService from './http.service.js';
+import { AuthValidator } from '../utils/auth.validator.js';
 
 export class AuthService {
 
@@ -13,11 +14,21 @@ export class AuthService {
      * @returns {Promise<Object>} Authentication response (token, user info, etc.)
      */
     static async login(username, password) {
-        return await httpService.post('/auth/login', {
-            username,
-            password,
-            expiresInMins: 60 // Token expiration time (1 hour)
-        });
+        const localUsers = JSON.parse(localStorage.getItem('purestore_local_users') || '[]');
+
+        // تشفير كلمة المرور المدخلة لمقارنتها بالمخزنة
+        const hashedPassword = await AuthValidator.hashPassword(password);
+
+        const localUser = localUsers.find(u =>
+            u.username === username && u.password === hashedPassword
+        );
+
+        if (localUser) {
+            return { ...localUser, accessToken: `local-token-${localUser.id}` };
+        }
+
+        // إذا لم يوجد محلياً، نرسله للـ API (كلمة مرور عادية لأن API DummyJSON لا يعرف الـ Hash الخاص بنا)
+        return await httpService.post('/auth/login', { username, password });
     }
 
     /**
@@ -51,6 +62,24 @@ export class AuthService {
      * @returns {Promise<Object>} Created user response
      */
     static async register(userData) {
-        return await httpService.post('/users/add', userData);
+        const hashedPassword = await AuthValidator.hashPassword(userData.password);
+
+        const response = await httpService.post('/users/add', userData);
+
+        const uniqueId = Math.floor(Date.now() + Math.random() * 1000);
+
+        const finalUserData = {
+            ...userData,
+            id: uniqueId,
+            password: hashedPassword,
+            role: 'user',
+            image: `https://robohash.org/${userData.email}?set=set4`
+        };
+
+        const localUsers = JSON.parse(localStorage.getItem('purestore_local_users') || '[]');
+        localUsers.push(finalUserData);
+        localStorage.setItem('purestore_local_users', JSON.stringify(localUsers));
+
+        return finalUserData;
     }
 }
