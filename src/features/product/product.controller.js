@@ -5,7 +5,7 @@ import { loadTemplate } from '../../core/utils/template.loader.js';
 import { ProductService } from '../../core/services/product.service.js';
 import { ProductDetailsView } from './product.view.js';
 import { UILoader } from '../../core/utils/ui.loader.js';
-import { CartActions } from '../../core/store/actions.js';
+import { CartActions } from '../../core/store/cart.actions.js';
 import { Toast } from '../../core/utils/toast.js';
 
 export class ProductDetailsController {

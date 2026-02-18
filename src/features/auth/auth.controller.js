@@ -1,5 +1,5 @@
 import { LoginView } from './login.view.js';
-import { AuthActions } from '../../core/store/actions.js';
+import { AuthActions } from '../../core/store/auth.actions.js';
 
 // AuthController
 // Handles authentication logic and connects the LoginView with AuthActions

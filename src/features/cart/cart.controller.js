@@ -1,6 +1,6 @@
 import store from '../../core/store/store.js';
 import { loadTemplate } from '../../core/utils/template.loader.js';
-import { CartActions } from '../../core/store/actions.js';
+import { CartActions } from '../../core/store/cart.actions.js';
 import { CartSelectors } from '../../core/store/selectors.js';
 import { CartView } from './cart.view.js';
 

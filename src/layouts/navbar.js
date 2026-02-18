@@ -1,8 +1,9 @@
 import store from '../core/store/store.js';
 import { loadTemplate } from "../core/utils/template.loader.js";
-import { UIActions, ProductActions } from "../core/store/actions.js";
 import { ProductSelectors } from "../core/store/selectors.js";
-import { AuthActions } from "../core/store/actions.js";
+import { AuthActions } from '../core/store/auth.actions.js';
+import { UIActions } from '../core/store/ui.actions.js';
+import { ProductActions } from '../core/store/product.actions.js';
 import { CartSelectors } from '../core/store/selectors.js';
 
 /**
