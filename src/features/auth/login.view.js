@@ -103,7 +103,6 @@ export class LoginView {
         // Cancel animation frame if running
         if (this.animationId) {
             cancelAnimationFrame(this.animationId);
-            console.log("Animation Stopped"); // For development debugging
         }
 
         // Remove resize event listener

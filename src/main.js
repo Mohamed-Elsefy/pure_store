@@ -8,7 +8,10 @@ import { renderNavbar } from './layouts/navbar.js';
 import { renderFooter } from './layouts/footer.js';
 
 // Import store actions for UI, Auth, and products
-import { UIActions, ProductActions, AuthActions, CartActions } from './core/store/actions.js';
+import { UIActions } from './core/store/ui.actions.js';
+import { ProductActions } from './core/store/product.actions.js';
+import { CartActions } from './core/store/cart.actions.js';
+import { AuthActions } from './core/store/auth.actions.js';
 
 /**
  * Application bootstrap function

@@ -1,7 +1,6 @@
 // src/features/products/products.view.js
 import { loadTemplate } from '../../core/utils/template.loader.js';
-import { CartActions } from '../../core/store/actions.js';
-import { Toast } from '../../core/utils/toast.js';
+import { CartActions } from '../../core/store/cart.actions.js';
 
 /**
  * ProductsView

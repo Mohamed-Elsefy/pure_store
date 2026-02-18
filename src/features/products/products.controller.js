@@ -3,7 +3,7 @@
 import store from '../../core/store/store.js';
 import { loadTemplate } from '../../core/utils/template.loader.js';
 import { ProductsView } from './products.view.js';
-import { ProductActions } from '../../core/store/actions.js';
+import { ProductActions } from '../../core/store/product.actions.js';
 import { ProductSelectors } from '../../core/store/selectors.js';
 import { UILoader } from '../../core/utils/ui.loader.js';
 
