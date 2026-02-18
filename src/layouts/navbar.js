@@ -233,7 +233,7 @@ const setActiveNavLink = () => {
     const currentHash = window.location.hash || '#/home';
     document.querySelectorAll('.nav-link').forEach(link => {
         const linkPath = link.getAttribute('href');
-        const isActive = currentHash.startsWith(`#${linkPath}`);
+        const isActive = currentHash === linkPath || (currentHash.startsWith(linkPath) && linkPath !== '#/home');
         link.classList.toggle('text-(--accent)', isActive);
         link.classList.toggle('after:scale-x-100', isActive);
     });
