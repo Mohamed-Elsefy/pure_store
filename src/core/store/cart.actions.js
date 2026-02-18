@@ -3,17 +3,7 @@
 import store from './store.js';
 import { CartService } from '../services/cart.service.js';
 import { Toast } from '../utils/toast.js';
-
-
-const persistCart = (cart, userId = null) => {
-    // Save the current cart state as a JSON string
-    localStorage.setItem('purestore_cart', JSON.stringify(cart));
-
-    // save a copy of cart
-    if (userId) {
-        localStorage.setItem(`cart_user_${userId}`, JSON.stringify(cart));
-    }
-};
+import { CartPersistence } from '../utils/cart.persistence.js';
 
 export const CartActions = {
 
@@ -36,6 +26,12 @@ export const CartActions = {
      * Ensures cart items contain full product data (title, price, thumbnail)
      */
     syncCartWithServer: async (userId) => {
+
+        if (!userId || userId === 'undefined') {
+            console.warn("🛑 Sync Cart aborted: Invalid User ID.");
+            return;
+        }
+
         try {
 
             // search in local first
@@ -44,7 +40,8 @@ export const CartActions = {
             if (savedUserCart) {
                 const parsedCart = JSON.parse(savedUserCart);
                 store.setState({ cart: parsedCart });
-                persistCart(parsedCart);
+
+                CartPersistence.save(parsedCart, userId);
                 return;
             }
 
@@ -77,7 +74,7 @@ export const CartActions = {
 
             // Update store and persist locally
             store.setState({ cart: enrichedCart });
-            persistCart(enrichedCart, userId);
+            CartPersistence.save(enrichedCart, userId);
 
         } catch (error) {
             console.error("❌ Sync Cart Error:", error);
@@ -111,7 +108,7 @@ export const CartActions = {
 
         // Update store and persist locally
         store.setState({ cart: updatedCart });
-        persistCart(updatedCart, auth.user?.id);
+        CartPersistence.save(updatedCart, auth.user?.id);
 
         // If user is authenticated, sync with server (DummyJSON simulation)
         if (auth.isAuthenticated) {
@@ -139,7 +136,7 @@ export const CartActions = {
         );
 
         store.setState({ cart: updatedCart });
-        persistCart(updatedCart, auth.user?.id);
+        CartPersistence.save(updatedCart, auth.user?.id);
     },
 
     /**
@@ -150,7 +147,7 @@ export const CartActions = {
         const updatedCart = cart.filter(item => item.id !== productId);
 
         store.setState({ cart: updatedCart });
-        persistCart(updatedCart, auth.user?.id);
+        CartPersistence.save(updatedCart, auth.user?.id);
     },
     /**
      * Clear entire cart
@@ -159,6 +156,7 @@ export const CartActions = {
     clearCart: () => {
         const { auth } = store.getState();
         store.setState({ cart: [] });
-        localStorage.removeItem('purestore_cart');
+
+        CartPersistence.save([], auth.user?.id);
     }
 };

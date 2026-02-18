@@ -1,63 +1,72 @@
-import { LoginView } from './login.view.js';
+// src/features/auth/auth.controller.js
+import { AuthView } from './auth.view.js';
 import { AuthActions } from '../../core/store/auth.actions.js';
+import { AuthValidator } from '../../core/utils/auth.validator.js';
 
-// AuthController
-// Handles authentication logic and connects the LoginView with AuthActions
 export class AuthController {
     constructor() {
-        // Initialize the login view
-        this.view = new LoginView();
+        this.view = new AuthView();
+        // نحدد النوع بناءً على الـ Hash الحالي
+        this.isRegisterMode = window.location.hash.includes('register');
     }
 
-    // Initialize controller: render view and bind form events
     async init() {
-        await this.view.render();
+        const mode = this.isRegisterMode ? 'register' : 'login';
+        await this.view.render(mode);
         this._bindEvents();
     }
 
-    // Attach form submit event listener
     _bindEvents() {
-        const form = document.getElementById('login-form');
+        const formId = this.isRegisterMode ? 'register-form' : 'login-form';
+        const form = document.getElementById(formId);
+
         if (form) {
             form.addEventListener('submit', (e) => this._handleSubmit(e));
+
+            form.querySelectorAll('input').forEach(input => {
+                input.addEventListener('input', () => {
+                    document.getElementById('auth-error')?.classList.add('hidden');
+                });
+            });
         }
     }
 
-    // Handle login form submission
     async _handleSubmit(e) {
         e.preventDefault();
-
-        // Extract form data
         const formData = new FormData(e.target);
-        const username = formData.get('username');
-        const password = formData.get('password');
+        const data = Object.fromEntries(formData.entries());
 
-        // Enable loading state in UI
-        this.view.setLoading(true);
+        // 1. التحقق من البيانات محلياً (Client-side Validation)
+        const errorMessage = await AuthValidator.validate(data, this.isRegisterMode);
+        
+        if (errorMessage) {
+            this.view.showError(errorMessage);
+            return; // توقف هنا ولا ترسل الطلب للسيرفر
+        }
 
-        // Call login action from store
-        const success = await AuthActions.login(username, password);
+        // 2. تفعيل حالة التحميل
+        const btnId = this.isRegisterMode ? 'register-btn' : 'login-btn';
+        this.view.setLoading(true, btnId);
 
-        if (success) {
-            // Redirect user to home/products page after successful login
-            window.location.hash = '#/home';
-        } else {
-            // Disable loading state
-            this.view.setLoading(false);
+        let success = false;
+        try {
+            if (this.isRegisterMode) {
+                success = await AuthActions.register(data);
+                if (success) window.location.hash = '#/login';
+            } else {
+                success = await AuthActions.login(data.username, data.password);
+                if (success) window.location.hash = '#/home';
+            }
+        } catch (err) {
+            success = false;
+        }
 
-            // Show error message (can later be replaced with store-driven message)
-            this.view.showError('Login failed. Please check your credentials.');
+        if (!success) {
+            this.view.setLoading(false, btnId);
         }
     }
 
-    // Cleanup method (used when navigating away from this page in SPA)
     destroy() {
-        // Stop animations and cleanup inside the view
-        if (this.view && typeof this.view.destroy === 'function') {
-            this.view.destroy();
-        }
-
-        // Unsubscribe from store if subscription exists
-        if (this.unsubscribe) this.unsubscribe();
+        this.view.destroy();
     }
 }
