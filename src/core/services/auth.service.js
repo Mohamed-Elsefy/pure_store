@@ -1,22 +1,43 @@
-// auth.service.js
+// src/core/services/auth.service.js
 
 import httpService from './http.service.js';
 import { AuthValidator } from '../utils/auth.validator.js';
 
+/**
+ * Default profile structure used to fill missing user fields.
+ * Ensures every user object has a consistent shape
+ * even if some data is not provided by the API.
+ */
+const PROFILE_PLACEHOLDER = {
+    "age": '',
+    "gender": '',
+    "phone": '',
+    "address": {
+        "address": '',
+        "city": '',
+        "state": '',
+        "postalCode": '',
+        "country": ''
+    },
+    "bank": {
+        "cardExpire": '',
+        "cardNumber": '',
+        "cardType": ''
+    }
+};
+
 export class AuthService {
 
     /**
-     * Authenticate user and create a session
-     * Sends username and password to the login endpoint.
-     * 
-     * @param {string} username - The user's username
-     * @param {string} password - The user's password
-     * @returns {Promise<Object>} Authentication response (token, user info, etc.)
+     * Handles user login:
+     * 1. Checks localStorage users first (offline/local users).
+     * 2. If found, returns user with generated local token.
+     * 3. Otherwise sends login request to external API.
+     * 4. Merges API response with default profile structure
+     *    to guarantee consistent user data.
      */
     static async login(username, password) {
         const localUsers = JSON.parse(localStorage.getItem('purestore_local_users') || '[]');
-
-        // تشفير كلمة المرور المدخلة لمقارنتها بالمخزنة
         const hashedPassword = await AuthValidator.hashPassword(password);
 
         const localUser = localUsers.find(u =>
@@ -27,50 +48,30 @@ export class AuthService {
             return { ...localUser, accessToken: `local-token-${localUser.id}` };
         }
 
-        // إذا لم يوجد محلياً، نرسله للـ API (كلمة مرور عادية لأن API DummyJSON لا يعرف الـ Hash الخاص بنا)
-        return await httpService.post('/auth/login', { username, password });
+        const apiResponse = await httpService.post('/auth/login', { username, password });
+
+        return { ...PROFILE_PLACEHOLDER, ...apiResponse };
     }
 
     /**
-     * Retrieve currently authenticated user data.
-     * Note: httpService automatically attaches the stored token
-     * to the request headers.
-     * 
-     * @returns {Promise<Object>} Current user information
-     */
-    static async getCurrentUser() {
-        // Using /auth/me endpoint (may vary depending on API version)
-        return await httpService.get('/auth/me');
-    }
-
-    /**
-     * Refresh the authentication session using a refresh token.
-     * 
-     * @param {string} refreshToken - The refresh token issued during login
-     * @returns {Promise<Object>} New access token and session data
-     */
-    static async refreshToken(refreshToken) {
-        return await httpService.post('/auth/refresh', {
-            refreshToken
-        });
-    }
-
-    /**
-     * Register a new user (simulation endpoint).
-     * 
-     * @param {Object} userData - New user data (name, email, password, etc.)
-     * @returns {Promise<Object>} Created user response
+     * Handles user registration:
+     * 1. Hashes password before storing.
+     * 2. Sends request to API (simulated).
+     * 3. Builds complete user object by merging:
+     *    - Generated ID
+     *    - Default profile template
+     *    - User input data
+     * 4. Saves user locally in localStorage.
      */
     static async register(userData) {
         const hashedPassword = await AuthValidator.hashPassword(userData.password);
 
         const response = await httpService.post('/users/add', userData);
 
-        const uniqueId = Math.floor(Date.now() + Math.random() * 1000);
-
         const finalUserData = {
+            id: Math.floor(Date.now() + Math.random() * 1000),
+            ...PROFILE_PLACEHOLDER,
             ...userData,
-            id: uniqueId,
             password: hashedPassword,
             role: 'user',
             image: `https://robohash.org/${userData.email}?set=set4`
@@ -81,5 +82,21 @@ export class AuthService {
         localStorage.setItem('purestore_local_users', JSON.stringify(localUsers));
 
         return finalUserData;
+    }
+
+    /**
+     * Retrieves the currently authenticated user
+     * from the backend using stored token.
+     */
+    static async getCurrentUser() {
+        return await httpService.get('/auth/me');
+    }
+
+    /**
+     * Requests a new access token using a refresh token.
+     * Used to maintain authenticated session without re-login.
+     */
+    static async refreshToken(refreshToken) {
+        return await httpService.post('/auth/refresh', { refreshToken });
     }
 }

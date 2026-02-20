@@ -33,6 +33,7 @@ class Store {
 
             // Other data
             cart: [],
+            buyNowItem: null,
             theme: localStorage.getItem('theme') || 'light',
             loading: false // Loading for general content
         };

@@ -87,11 +87,18 @@
             <p data-description class="leading-relaxed text-(--text-secondary)">
             </p>
 
-            <!-- Add to cart button -->
-            <button
-                class="add-to-cart-btn w-full py-3 mt-11 rounded-2xl border border-(--accent) text-(--accent) hover:bg-(--accent) hover:text-white  transition-all">
-                Add to Cart
-            </button>
+            <!-- Add to cart, buy now buttons  -->
+            <div class="flex flex-col sm:flex-row gap-4 mt-8">
+                <button
+                    class="add-to-cart-btn flex-1 py-4 rounded-2xl border border-(--accent) text-(--accent) font-bold hover:bg-(--accent) hover:text-white transition-all active:scale-95">
+                    Add to Cart
+                </button>
+
+                <button
+                    class="buy-now-btn flex-1 py-4 rounded-2xl bg-(--accent) text-white font-bold hover:opacity-90 transition-all active:scale-95 shadow-lg shadow-(--accent)/20">
+                    Buy Now
+                </button>
+            </div>
 
         </div>
 
