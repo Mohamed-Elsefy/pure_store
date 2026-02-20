@@ -35,28 +35,30 @@ export class CheckoutController {
      * 4. Scrolls to top for better UX
      */
     async init() {
-        const { auth } = store.getState();
-        const cartItems = CartSelectors.getCartItems();
+        const template = await loadTemplate('/src/features/checkout/checkout.template.html');
+        this.app.innerHTML = template;
 
-        if (cartItems.length === 0) {
-            Toast.show('Your cart is empty!', 'warning');
-            window.location.hash = '#/cart';
+        const state = store.getState();
+        let itemsToRender = [];
+        let totalPrice = 0;
+
+        if (state.buyNowItem) {
+            itemsToRender = [state.buyNowItem];
+            totalPrice = (state.buyNowItem.price * state.buyNowItem.quantity).toFixed(2);
+        } else {
+            itemsToRender = state.cart;
+            totalPrice = CartSelectors.getCartTotal();
+        }
+
+        if (itemsToRender.length === 0) {
+            Toast.show("Your cart is empty", "info");
+            window.location.hash = '#/home';
             return;
         }
 
-        try {
-            const template = await loadTemplate('/src/features/checkout/checkout.template.html');
-            this.app.innerHTML = template;
+        this.view.render(itemsToRender, totalPrice, state.auth.user);
 
-            const total = CartSelectors.getCartTotal();
-            this.view.render(cartItems, total, auth.user);
-
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-
-        } catch (error) {
-            console.error('Checkout Initialization Error:', error);
-            Toast.show('Failed to load checkout page', 'error');
-        }
+        window.scrollTo(0, 0);
     }
 
     /**
@@ -69,43 +71,40 @@ export class CheckoutController {
      */
     async _handleOrderSubmission(formData) {
         const submitBtn = document.querySelector('button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
-        const { auth, cart } = store.getState();
+        const originalText = submitBtn ? submitBtn.innerHTML : 'Confirm Order';
+        const { auth, cart, buyNowItem } = store.getState();
+        const finalItems = buyNowItem ? [buyNowItem] : [...cart];
+        const finalTotal = buyNowItem
+            ? (buyNowItem.price * buyNowItem.quantity).toFixed(2)
+            : CartSelectors.getCartTotal();
 
         try {
-            // Activate loading state and simulate network delay
             this._toggleButtonLoading(submitBtn, true);
-            await new Promise(resolve => setTimeout(resolve, 2000));
 
-            // Prepare order payload from current cart state
+            await new Promise(res => setTimeout(res, 1000));
+
             const orderRecord = {
-                items: [...cart],
-                total: CartSelectors.getCartTotal(),
+                items: finalItems,
+                total: finalTotal,
                 address: formData.address,
-                paymentMethod: formData.payment_method
+                phone: formData.phone, 
+                paymentMethod: formData.payment_method,
+                date: new Date().toISOString()
             };
 
-            // Persist order for current user
-            OrderService.saveOrder(auth.user.id, orderRecord);
+            await OrderService.saveOrder(auth.user.id, orderRecord);
 
-            // Update user profile data (phone & address)
-            const updatedUser = AuthHelper.updateUser({
-                phone: formData.phone,
-                address: { ...auth.user.address, address: formData.address }
-            });
-
-            if (updatedUser) {
-                store.setState({ auth: { ...store.getState().auth, user: updatedUser } });
+            if (buyNowItem) {
+                store.setState({ buyNowItem: null });
+            } else {
+                CartActions.clearCart();
             }
 
-            // Clear cart and notify user
-            CartActions.clearCart();
-            Toast.show(`Success! Order #${Math.floor(Date.now() / 10000)} created.`, 'success');
-
-            // Redirect after successful order
+            Toast.show('Order Created Successfully!', 'success');
             window.location.hash = '#/home';
 
         } catch (error) {
+            console.error(error);
             Toast.show('Error processing order', 'error');
             this._toggleButtonLoading(submitBtn, false, originalText);
         }
@@ -136,6 +135,7 @@ export class CheckoutController {
      * Can be extended later to remove global listeners if needed.
      */
     destroy() {
-        console.log('Checkout Controller Destroyed');
+        store.setState({ buyNowItem: null });
+        if (this.unsubscribe) this.unsubscribe();
     }
 }

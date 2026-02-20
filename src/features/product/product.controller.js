@@ -134,6 +134,20 @@ export class ProductDetailsController {
             }
         };
 
+        // buy now button
+        const buyNowBtn = document.querySelector('.buy-now-btn');
+        if (buyNowBtn) {
+            buyNowBtn.onclick = (e) => {
+                e.preventDefault();
+
+                store.setState({
+                    buyNowItem: { ...product, quantity: this.currentQuantity }
+                });
+
+                window.location.hash = '#/checkout';
+            };
+        }
+
         // Store original button content outside click handler
         // This ensures we can restore it after visual feedback
         const originalContent = btn.innerHTML;
