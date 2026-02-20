@@ -60,5 +60,13 @@ export class CartView {
         // Update summary (total count and total price)
         document.getElementById('summary-count').textContent = summary.count;
         document.getElementById('summary-total').textContent = summary.total;
+
+        // checkout button
+        const checkoutBtn = document.getElementById('checkout-btn');
+        if (checkoutBtn) {
+            checkoutBtn.onclick = () => {
+                window.location.hash = '#/checkout';
+            };
+        }
     }
 }

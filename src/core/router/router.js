@@ -2,6 +2,7 @@
 
 import { ROUTES } from '../config/routes.config.js';
 import store from '../store/store.js';
+import { Toast } from '../utils/toast.js';
 
 class Router {
     constructor() {
@@ -65,6 +66,7 @@ class Router {
         // If the route requires login and the user is not logged in
         if (route.requiresAuth && !auth.isAuthenticated) {
             window.location.hash = '#/login';
+            Toast.show(`Please Login!`, 'error');
             return;
         }
 

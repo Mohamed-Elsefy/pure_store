@@ -37,6 +37,26 @@ export const AuthHelper = {
     },
 
     /**
+ * Updates the currently authenticated user's data:
+ * - Retrieves the existing user from storage
+ * - Merges the new updated fields with the current user object
+ * - Persists the updated user back to localStorage
+ * - Returns the updated user object
+ * - Returns null if no user is found
+ */
+    updateUser(updatedData) {
+        const currentUser = this.getUser();
+
+        if (currentUser) {
+            const newUser = { ...currentUser, ...updatedData };
+            localStorage.setItem(USER_KEY, JSON.stringify(newUser));
+            return newUser;
+        }
+
+        return null;
+    },
+
+    /**
      * Clear session data on logout.
      * Removes both token and user information from localStorage.
      */

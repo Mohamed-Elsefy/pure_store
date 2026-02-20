@@ -7,25 +7,40 @@ import { CartActions } from './cart.actions.js';
 import { Toast } from '../utils/toast.js';
 import { CartPersistence } from '../utils/cart.persistence.js';
 
-
+/**
+ * AuthActions
+ * Handles authentication-related state transitions and side effects:
+ * - Registration
+ * - Login
+ * - Logout
+ * - Session initialization
+ * Also manages cart synchronization during auth changes.
+ */
 export const AuthActions = {
 
+    /**
+     * Registers a new user:
+     * - Sets loading state
+     * - Calls AuthService to create the user
+     * - Persists guest cart under the new user ID
+     * - Shows feedback via Toast
+     * - Resets loading and error states
+     */
     register: async (userData) => {
         store.setState({ auth: { ...store.getState().auth, loading: true, error: null } });
+
         try {
             const newUser = await AuthService.register(userData);
 
             if (newUser && newUser.id) {
-                // الحصول على سلة الضيف الحالية من الـ Store
                 const currentGuestCart = store.getState().cart || [];
-
-                // استخدام الـ helper لحفظها للمستخدم الجديد فوراً
                 CartPersistence.save(currentGuestCart, newUser.id);
             }
 
             store.setState({ auth: { ...store.getState().auth, loading: false } });
             Toast.show(`Account created! Welcome ${newUser.firstName}`, 'success');
             return true;
+
         } catch (error) {
             store.setState({
                 auth: { ...store.getState().auth, loading: false, error: error.message }
@@ -36,37 +51,27 @@ export const AuthActions = {
     },
 
     /**
-     * Authenticate user and update application state.
-     * 
-     * Steps:
-     * 1. Set loading state.
-     * 2. Call AuthService.login().
-     * 3. Save session (token + user data).
-     * 4. Update auth state in store.
-     * 5. (Optional) Merge guest cart with user cart.
-     * 
-     * @param {string} username
-     * @param {string} password
-     * @returns {Promise<boolean>} True if login succeeds, otherwise false
+     * Logs in a user:
+     * - Sets loading state
+     * - Authenticates via AuthService
+     * - Saves session (token + user)
+     * - Merges guest cart with stored user cart
+     * - Updates store with authenticated state
+     * - Persists final merged cart
      */
     login: async (username, password) => {
-
-        // Set loading state before API call
         store.setState({ auth: { ...store.getState().auth, loading: true, error: null } });
 
         try {
             const data = await AuthService.login(username, password);
 
-            // Save session to localStorage
             AuthHelper.saveSession(data.accessToken, data);
 
             const guestCart = [...store.getState().cart];
-
-            // Merge guest cart with server cart after login
-            // Prevents duplication and merges quantities
             const savedUserCartJson = localStorage.getItem(`cart_user_${data.id}`);
             const userCart = savedUserCartJson ? JSON.parse(savedUserCartJson) : [];
 
+            // Merge carts using Map to avoid duplicate product IDs
             const mergedMap = new Map();
             userCart.forEach(p => mergedMap.set(p.id, { ...p }));
 
@@ -87,61 +92,58 @@ export const AuthActions = {
 
             store.setState({
                 cart: finalCart,
-                auth: { user: data, token: data.accessToken, isAuthenticated: true, loading: false }
+                auth: {
+                    user: data,
+                    token: data.accessToken,
+                    isAuthenticated: true,
+                    loading: false
+                }
             });
 
             CartPersistence.save(finalCart, data.id);
-
-            Toast.show(`Welcome ${data.username}`, 'success');
+            Toast.show(`Welcome back, ${data.firstName || data.username}`, 'success');
             return true;
 
         } catch (error) {
-            store.setState({ auth: { ...store.getState().auth, loading: false, error: error.message } });
-            Toast.show('Please Try Again!', 'error');
+            store.setState({
+                auth: { ...store.getState().auth, loading: false, error: error.message }
+            });
+            Toast.show('Login failed. Please check your credentials.', 'error');
             return false;
         }
     },
 
-
     /**
-     * Logout user and clear authentication state.
-     * 
-     * - Clears stored session.
-     * - Resets auth state.
-     * - Clears cart in store.
-     * - Redirects to login page.
+     * Logs out the current user:
+     * - Saves current cart under user ID
+     * - Clears session and local cart
+     * - Resets auth and cart state in store
+     * - Redirects to login page
      */
     logout: () => {
         const { auth, cart } = store.getState();
 
-        // 🟢 استخدام الـ Helper بدلاً من الـ localStorage مباشرة لضمان الأمان
         if (auth.user && auth.user.id) {
             CartPersistence.save(cart, auth.user.id);
         }
 
         AuthHelper.clearSession();
-
-        // مسح السلة "النشطة" فقط، السلال الخاصة بالمستخدمين محفوظة في مفاتيحهم
         localStorage.removeItem('purestore_cart');
-
-        // 🟢 إضافة خطوة تنظيف يدوية للمفاتيح المشوهة لمرة واحدة
-        localStorage.removeItem('cart_user_undefined');
-        localStorage.removeItem('cart_user_null');
 
         store.setState({
             auth: { user: null, token: null, isAuthenticated: false, loading: false, error: null },
-            cart: [], // تفريغ الـ Store فوراً
+            cart: [],
         });
 
         window.location.hash = '#/login';
     },
 
-
     /**
-     * Initialize authentication state on app startup.
-     * 
-     * - Checks if token and user data exist in localStorage.
-     * - Restores authentication state if session is valid.
+     * Initializes authentication state on app startup:
+     * - Restores session from storage
+     * - Validates token and user
+     * - Syncs cart (local or server) based on availability
+     * - Clears invalid sessions if corrupted
      */
     initAuth: async () => {
         const token = AuthHelper.getToken();
@@ -153,6 +155,7 @@ export const AuthActions = {
             });
 
             const localCart = JSON.parse(localStorage.getItem('purestore_cart') || '[]');
+
             if (localCart.length === 0) {
                 await CartActions.syncCartWithServer(user.id);
             } else {

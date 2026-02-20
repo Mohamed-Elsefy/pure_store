@@ -33,5 +33,10 @@ export const ROUTES = {
     '/cart': {
         controller: 'CartController',
         importPath: '/src/features/cart/cart.controller.js',
+    },
+    '/checkout': {
+        controller: 'CheckoutController',
+        importPath: '/src/features/checkout/checkout.controller.js',
+        requiresAuth: true
     }
 };
