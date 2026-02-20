@@ -64,6 +64,13 @@ export const ProductSelectors = {
             totalPages: Math.ceil(filtered.length / pagination.itemsPerPage),
             currentPage: pagination.currentPage
         };
+    },
+
+    getTopRatedProducts: (limit = 4) => {
+        const { products } = store.getState();
+        return [...products]
+            .sort((a, b) => b.rating - a.rating) 
+            .slice(0, limit);
     }
 };
 
