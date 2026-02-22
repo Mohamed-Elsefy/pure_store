@@ -25,7 +25,7 @@ export class ProductDetailsController {
      */
     async init() {
         const app = document.getElementById('app');
-        const template = await loadTemplate('/src/features/product/product.template.html');
+        const template = await loadTemplate('./src/features/product/product.template.html');
         app.innerHTML = template;
 
         // Subscribe to store changes (e.g., when products finish loading in main.js)

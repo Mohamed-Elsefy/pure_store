@@ -13,7 +13,7 @@ export const renderFooter = async () => {
     if (!footerElement) return; // Exit if no footer exists
 
     // Load the footer template (cached via template loader)
-    const template = await loadTemplate('/src/layouts/footer.template.html');
+    const template = await loadTemplate('./src/layouts/footer.template.html');
 
     // Inject template into the DOM
     footerElement.innerHTML = template;

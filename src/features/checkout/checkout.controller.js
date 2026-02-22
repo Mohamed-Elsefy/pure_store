@@ -35,7 +35,7 @@ export class CheckoutController {
      * 4. Scrolls to top for better UX
      */
     async init() {
-        const template = await loadTemplate('/src/features/checkout/checkout.template.html');
+        const template = await loadTemplate('./src/features/checkout/checkout.template.html');
         this.app.innerHTML = template;
 
         const state = store.getState();

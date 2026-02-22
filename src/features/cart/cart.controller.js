@@ -26,7 +26,7 @@ export class CartController {
      */
     async init() {
         // 1. Load the main cart template HTML
-        const template = await loadTemplate('/src/features/cart/cart.template.html');
+        const template = await loadTemplate('./src/features/cart/cart.template.html');
         document.getElementById('app').innerHTML = template;
 
         // 2. Subscribe to store changes to auto-update the UI when state changes

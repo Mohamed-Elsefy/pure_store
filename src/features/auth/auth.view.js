@@ -28,7 +28,7 @@ export class AuthView {
     | Inserts it into the DOM and initializes wave animation.
     */
     async render(viewType = 'login') {
-        const templatePath = `/src/features/auth/${viewType}.template.html`;
+        const templatePath = `./src/features/auth/${viewType}.template.html`;
         const template = await loadTemplate(templatePath);
         this.appElement.innerHTML = template;
 

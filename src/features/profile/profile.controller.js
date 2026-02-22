@@ -42,7 +42,7 @@ export class ProfileController {
             return;
         }
 
-        const template = await loadTemplate('/src/features/profile/profile.template.html');
+        const template = await loadTemplate('./src/features/profile/profile.template.html');
         app.innerHTML = template;
 
         this.unsubscribe = store.subscribe((newState) => {

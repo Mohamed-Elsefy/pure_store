@@ -24,7 +24,7 @@ export class ProductsController {
     async init() {
         // 1. Load main page template
         const app = document.getElementById('app');
-        app.innerHTML = await loadTemplate('/src/features/products/products.template.html');
+        app.innerHTML = await loadTemplate('./src/features/products/products.template.html');
 
         // 2. Render static layout components (Sidebar & Layout)
         await ProductsView.renderLayout();

@@ -18,11 +18,11 @@ export class HomeController {
         const app = document.getElementById('app');
 
         // 1. Load the main home template
-        const template = await loadTemplate('/src/features/home/home.template.html');
+        const template = await loadTemplate('./src/features/home/home.template.html');
         app.innerHTML = template;
 
         // 2. Load reusable product card template (used for top-rated section)
-        const cardTemplate = await loadTemplate('/src/features/products/partials/product-card.html');
+        const cardTemplate = await loadTemplate('./src/features/products/partials/product-card.html');
 
         // 3. Initialize typewriter animation in hero section
         HomeView.initTypewriter(['Style', 'Trends', 'Comfort', 'Identity']);

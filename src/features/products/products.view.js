@@ -16,7 +16,7 @@ export const ProductsView = {
      * Load and render the sidebar layout
      */
     async renderLayout() {
-        const sidebar = await loadTemplate('/src/features/products/partials/sidebar.html');
+        const sidebar = await loadTemplate('./src/features/products/partials/sidebar.html');
         const container = document.getElementById('sidebar-container');
         if (container) container.innerHTML = sidebar;
     },
@@ -26,7 +26,7 @@ export const ProductsView = {
      * @returns {string} HTML template string
      */
     async getCardTemplate() {
-        return await loadTemplate('/src/features/products/partials/product-card.html');
+        return await loadTemplate('./src/features/products/partials/product-card.html');
     },
 
     /**
