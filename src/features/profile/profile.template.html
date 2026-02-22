@@ -1,0 +1,274 @@
+<!--
+Profile Page Section
+
+Main Layout:
+- Responsive 3-column grid (1 column on mobile).
+- Left: Profile card (display mode + edit mode).
+- Right: Order history with dynamic templates.
+-->
+
+<section class="max-w-7xl mx-auto px-4 py-24">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        <!-- ============================ -->
+        <!-- Left Column: Profile Sidebar -->
+        <!-- ============================ -->
+        <div class="lg:col-span-1 space-y-6">
+            <div class="bg-(--bg-surface) border border-(--border-glass) rounded-3xl p-8 sticky top-24 shadow-sm">
+
+                <!-- ================================= -->
+                <!-- Display Mode (Default View State) -->
+                <!-- ================================= -->
+                <!--
+                Shows:
+                - Avatar with edit button overlay
+                - Full name and email
+                - Phone, address, age
+                - Logout and delete account actions
+                -->
+                <div id="profile-display-mode" class="space-y-6">
+
+                    <!-- Avatar + Basic Info -->
+                    <div class="text-center space-y-4">
+                        <div class="relative inline-block">
+                            <!-- User avatar image -->
+                            <img id="user-avatar" src="" alt="Avatar"
+                                class="w-32 h-32 rounded-full mx-auto border-4 border-(--accent) shadow-lg object-cover">
+
+                            <!-- Button to switch to edit mode -->
+                            <button id="edit-profile-btn"
+                                class="absolute bottom-0 right-0 bg-(--accent) text-white w-10 h-10 rounded-full border-4 border-(--bg-surface) hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-pen text-xs"></i>
+                            </button>
+                        </div>
+
+                        <!-- Name + Email -->
+                        <div>
+                            <h2 id="user-full-name" class="text-2xl font-black font-(family-name:--fsecond)"></h2>
+                            <p id="user-email" class="text-(--text-secondary) text-sm"></p>
+                        </div>
+                    </div>
+
+                    <hr class="my-6 border-(--border-glass)">
+
+                    <!-- Contact & Personal Information -->
+                    <div class="space-y-4">
+
+                        <!-- Phone -->
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-phone text-(--accent) w-5 text-center"></i>
+                            <span id="user-phone" class="text-sm font-medium"></span>
+                        </div>
+
+                        <!-- Address -->
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-location-dot text-(--accent) w-5 text-center"></i>
+                            <span id="user-address" class="text-sm leading-tight font-medium"></span>
+                        </div>
+
+                        <!-- Age -->
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-calendar text-(--accent) w-5 text-center"></i>
+                            <span id="user-age" class="text-sm font-medium"></span>
+                        </div>
+
+                    </div>
+
+                    <!-- Account Actions -->
+                    <div class="pt-4 space-y-3">
+
+                        <!-- Logout Button -->
+                        <button id="logout-btn"
+                            class="w-full py-3 rounded-xl border border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white transition-all font-bold text-sm">
+                            <i class="fa-solid fa-right-from-bracket mr-2"></i> Logout
+                        </button>
+
+                        <!-- Delete Account Button -->
+                        <button id="delete-account-btn"
+                            class="w-full py-2 text-xs text-red-400/60 hover:text-red-600 transition-colors font-medium">
+                            Delete Account
+                        </button>
+
+                    </div>
+                </div>
+
+                <!-- ============================== -->
+                <!-- Edit Mode (Hidden by Default) -->
+                <!-- ============================== -->
+                <!--
+                Form for updating:
+                - First name
+                - Last name
+                - Phone
+                - Address
+                - Age
+                - Profile picture
+                -->
+                <form id="edit-profile-form" class="hidden space-y-4">
+
+                    <h3 class="text-xl font-bold mb-4">Edit Profile</h3>
+
+                    <!-- First Name Field -->
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase text-(--text-secondary)">First Name</label>
+                        <input type="text" name="firstName" required
+                            class="w-full bg-white/5 border border-(--border-glass) rounded-xl px-4 py-2 focus:border-(--accent) outline-none transition-all">
+                    </div>
+
+                    <!-- Last Name Field -->
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase text-(--text-secondary)">Last Name</label>
+                        <input type="text" name="lastName" required
+                            class="w-full bg-white/5 border border-(--border-glass) rounded-xl px-4 py-2 focus:border-(--accent) outline-none transition-all">
+                    </div>
+
+                    <!-- Phone Field -->
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase text-(--text-secondary)">Phone</label>
+                        <input type="tel" name="phone"
+                            class="w-full bg-white/5 border border-(--border-glass) rounded-xl px-4 py-2 focus:border-(--accent) outline-none transition-all">
+                    </div>
+
+                    <!-- Address Field -->
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase text-(--text-secondary)">Address</label>
+                        <input type="text" name="address"
+                            class="w-full bg-white/5 border border-(--border-glass) rounded-xl px-4 py-2 focus:border-(--accent) outline-none transition-all">
+                    </div>
+
+                    <!-- Age Field -->
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase text-(--text-secondary)">Age</label>
+                        <input type="number" name="age" min="1" max="120"
+                            class="w-full bg-white/5 border border-(--border-glass) rounded-xl px-4 py-2 focus:border-(--accent) outline-none transition-all">
+                    </div>
+
+                    <!-- Avatar Upload -->
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase text-(--text-secondary)">Profile Picture</label>
+                        <div class="flex items-center gap-4">
+
+                            <!-- Hidden File Input -->
+                            <input type="file" id="avatar-upload" accept="image/*" class="hidden">
+
+                            <!-- Custom Upload Button -->
+                            <button type="button" onclick="document.getElementById('avatar-upload').click()"
+                                class="px-4 py-2 bg-white/10 border border-(--border-glass) rounded-xl text-xs font-bold hover:bg-white/20 transition-all">
+                                <i class="fa-solid fa-upload mr-2"></i> Choose Image
+                            </button>
+
+                            <!-- Selected File Name Display -->
+                            <span id="file-name-display"
+                                class="text-[10px] text-(--text-secondary) truncate max-w-37.5">
+                                No file chosen
+                            </span>
+
+                        </div>
+                    </div>
+
+                    <!-- Form Action Buttons -->
+                    <div class="flex gap-2 pt-4">
+
+                        <!-- Cancel Edit -->
+                        <button type="button" id="cancel-edit-btn"
+                            class="flex-1 py-2 rounded-xl bg-(--border-glass) hover:bg-white/10 transition-all font-bold text-sm">
+                            Cancel
+                        </button>
+
+                        <!-- Save Changes -->
+                        <button type="submit"
+                            class="flex-1 py-2 rounded-xl bg-(--accent) text-white hover:opacity-90 transition-all font-bold text-sm">
+                            Save Changes
+                        </button>
+
+                    </div>
+                </form>
+
+            </div>
+        </div>
+
+        <!-- ============================ -->
+        <!-- Right Column: Order History -->
+        <!-- ============================ -->
+        <div class="lg:col-span-2 space-y-6">
+
+            <!-- Section Title -->
+            <h3 class="text-2xl font-black font-(family-name:--fsecond)">Order History</h3>
+
+            <!-- Orders will be dynamically rendered here -->
+            <div id="orders-container" class="space-y-4"></div>
+
+            <!-- ===================== -->
+            <!-- Empty State Template -->
+            <!-- ===================== -->
+            <!--
+            Displayed when the user has no orders.
+            Encourages navigation to the products page.
+            -->
+            <template id="empty-orders-template">
+                <div
+                    class="text-center py-20 bg-(--bg-surface) rounded-3xl border border-dashed border-(--border-glass)">
+                    <i class="fa-solid fa-box-open text-5xl text-(--text-secondary) mb-4"></i>
+                    <p class="text-(--text-secondary)">You haven't placed any orders yet.</p>
+                    <a href="#/products" class="text-(--accent) font-bold underline mt-2 inline-block">
+                        Start Shopping
+                    </a>
+                </div>
+            </template>
+
+            <!-- ===================== -->
+            <!-- Order Card Template  -->
+            <!-- ===================== -->
+            <!--
+            Used to dynamically render each order:
+            - Order ID
+            - Order date
+            - Total price
+            - Status badge
+            - Horizontally scrollable list of ordered items
+            -->
+            <template id="order-card-template">
+                <div
+                    class="bg-(--bg-surface) border border-(--border-glass) rounded-2xl overflow-hidden hover:border-(--accent)/50 transition-all shadow-sm">
+
+                    <!-- Order Header -->
+                    <div class="p-6 flex flex-wrap justify-between items-center gap-4 bg-white/5">
+
+                        <div>
+                            <p class="text-[10px] text-(--text-secondary) uppercase tracking-widest font-bold">
+                                Order ID
+                            </p>
+                            <p class="font-bold order-id text-sm"></p>
+                        </div>
+
+                        <div>
+                            <p class="text-[10px] text-(--text-secondary) uppercase tracking-widest font-bold">
+                                Date
+                            </p>
+                            <p class="font-bold order-date text-sm"></p>
+                        </div>
+
+                        <div>
+                            <p class="text-[10px] text-(--text-secondary) uppercase tracking-widest font-bold">
+                                Total
+                            </p>
+                            <p class="font-bold order-total text-(--accent) text-sm"></p>
+                        </div>
+
+                        <!-- Order Status Badge -->
+                        <span
+                            class="order-status px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
+                        </span>
+
+                    </div>
+
+                    <!-- Ordered Items Preview -->
+                    <div class="order-items p-4 border-t border-(--border-glass) flex gap-2 overflow-x-auto">
+                    </div>
+
+                </div>
+            </template>
+
+        </div>
+    </div>
+</section>

@@ -164,5 +164,79 @@ export const AuthActions = {
         } else {
             AuthHelper.clearSession();
         }
+    },
+    /**
+     * Updates the currently authenticated user's profile.
+     *
+     * Flow:
+     * - Retrieves the logged-in user from the store.
+     * - If no user exists, the operation stops.
+     * - Sets loading state to true while processing.
+     * - Calls AuthService.updateUser to persist changes (local or API).
+     * - Updates the saved session in localStorage to keep data after refresh.
+     * - Updates the global store with the new user data.
+     * - Shows a success notification.
+     * - On failure:
+     *     • Resets loading state.
+     *     • Displays an error notification.
+     * - Returns true on success, false on failure.
+     */
+    updateProfile: async (updateData) => {
+        const { user } = store.getState().auth;
+        if (!user) return;
+
+        store.setState({ auth: { ...store.getState().auth, loading: true } });
+
+        try {
+            const updatedUser = await AuthService.updateUser(user.id, updateData);
+
+            AuthHelper.saveSession(AuthHelper.getToken(), updatedUser);
+
+            store.setState({
+                auth: {
+                    ...store.getState().auth,
+                    user: updatedUser,
+                    loading: false
+                }
+            });
+
+            Toast.show('Profile updated successfully!', 'success');
+            return true;
+        } catch (error) {
+            store.setState({ auth: { ...store.getState().auth, loading: false } });
+            Toast.show('Failed to update profile', 'error');
+            return false;
+        }
+    },
+
+    /**
+     * Deletes the currently authenticated user's account.
+     *
+     * Flow:
+     * - Retrieves the logged-in user from the store.
+     * - If no user exists, the operation stops.
+     * - Calls AuthService.deleteUser to remove the account (local or API).
+     * - Removes the user's cart from localStorage.
+     * - Displays a confirmation notification.
+     * - Logs the user out and clears the session.
+     * - Returns true on success, false on failure.
+     */
+    deleteAccount: async () => {
+        const { user } = store.getState().auth;
+        if (!user) return;
+
+        try {
+            await AuthService.deleteUser(user.id);
+
+            localStorage.removeItem(`cart_user_${user.id}`);
+
+            Toast.show('Account deleted successfully', 'info');
+
+            AuthActions.logout();
+            return true;
+        } catch (error) {
+            Toast.show('Failed to delete account', 'error');
+            return false;
+        }
     }
 };
