@@ -80,8 +80,11 @@ class Router {
         this.appElement.innerHTML = '';
 
         try {
-            // Dynamically import the feature controller module
-            const module = await import(route.importPath);
+            const baseUrl = window.location.origin + window.location.pathname;
+            const absolutePath = new URL(route.importPath, baseUrl).href;
+
+            const module = await import(absolutePath);
+
             const ControllerClass = module[route.controller];
 
             if (!ControllerClass) {
