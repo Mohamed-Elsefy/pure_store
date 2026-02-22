@@ -1,26 +1,33 @@
 /* src/style/theme.css */
 
 :root {
-    /* Colors */
-    --bg-primary: #F5F5F5;
-    --text-primary: #666666;
-    --accent: #008ECC;
+    --bg-primary: #F9F9F9;
+    --bg-surface: #FCF2F2;
 
-    /* Fonts */
+    --bg-gradient-main: radial-gradient(circle at 80% 40%, #d4b5ad 0%, #fef5f5 30%);
+
+    --text-primary: #161616;
+    --text-secondary: #999;
+
+    --accent: #B1402A;
+
+    --border-glass: rgba(177, 64, 42, 0.3);
+
     --fprim: 'Satoshi', system-ui, sans-serif;
     --fsecond: 'Montserrat', system-ui, sans-serif;
 }
 
 /* Dark Mode Overrides */
 html.dark {
-    --bg-primary: #121212;
-    --text-primary: #f3f4f6;
-    --accent: #60a5fa;
-}
+    --bg-primary: #161616;
+    --bg-surface: #222222;
 
-/* Global Body Styles */
-body {
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
-    transition: background-color 0.3s ease, color 0.3s ease;
+    --bg-gradient-main: radial-gradient(circle at 80% 40%, #3d1b14 0%, #161616 30%);
+
+    --text-primary: #FFFFFF;
+    --text-secondary: #A0A0A0;
+
+    --accent: #B1402A;
+
+    --border-glass: rgba(255, 255, 255, 0.1);
 }

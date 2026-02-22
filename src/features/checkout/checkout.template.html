@@ -1,0 +1,181 @@
+<!--
+    Checkout Page Layout
+    - Main container centered with responsive padding and full viewport height
+    - Uses grid layout to separate form (left) and order summary (right)
+-->
+<div class="container mx-auto px-4 py-24 min-h-screen">
+    <div class="max-w-5xl mx-auto">
+        <h1 class="mb-8 text-3xl font-black italic uppercase tracking-tighter">Checkout</h1>
+
+        <!--
+            Checkout Form
+            - Divided into 12-column grid on large screens
+            - Left: Shipping & Payment (8 cols)
+            - Right: Order Summary (4 cols)
+        -->
+        <form id="checkout-form" class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+
+            <!-- ================= LEFT SECTION ================= -->
+            <div class="lg:col-span-8 space-y-8">
+
+                <!--
+                    Section 1: Shipping Details
+                    - Collects user's full name, phone, and shipping address
+                    - Responsive 2-column layout on medium screens
+                -->
+                <div class="bg-(--bg-surface) p-8 rounded-3xl border border-(--border-glass) shadow-2xl">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span
+                            class="w-8 h-8 rounded-full bg-(--accent) text-white flex items-center justify-center font-bold">1</span>
+                        <h2 class="text-xl font-bold">Shipping Details</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Full Name Input -->
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-widest opacity-60">Full Name</label>
+                            <input type="text" name="full_name" required placeholder="John Doe"
+                                class="w-full bg-(--bg-primary) border border-(--border-glass) p-4 rounded-2xl focus:ring-2 focus:ring-(--accent) outline-none transition-all">
+                        </div>
+
+                        <!-- Phone Input -->
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-widest opacity-60">Phone Number</label>
+                            <input type="tel" name="phone" required placeholder="+1 234 567 890"
+                                class="w-full bg-(--bg-primary) border border-(--border-glass) p-4 rounded-2xl focus:ring-2 focus:ring-(--accent) outline-none transition-all">
+                        </div>
+
+                        <!-- Address Input -->
+                        <div class="md:col-span-2 space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-widest opacity-60">
+                                Shipping Address
+                            </label>
+                            <textarea name="address" required rows="2" placeholder="Street address, Apartment, Suite..."
+                                class="w-full bg-(--bg-primary) border border-(--border-glass) p-4 rounded-2xl focus:ring-2 focus:ring-(--accent) outline-none transition-all"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!--
+                    Section 2: Payment Method
+                    - User selects payment option (Card or Cash on Delivery)
+                    - Credit card fields shown conditionally
+                -->
+                <div class="bg-(--bg-surface) p-8 rounded-3xl border border-(--border-glass) shadow-2xl">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span
+                            class="w-8 h-8 rounded-full bg-(--accent) text-white flex items-center justify-center font-bold">2</span>
+                        <h2 class="text-xl font-bold">Payment Method</h2>
+                    </div>
+
+                    <!-- Payment Options -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <!-- Credit Card Option -->
+                        <label
+                            class="relative flex items-center p-4 border border-(--border-glass) rounded-2xl cursor-pointer hover:bg-(--bg-primary) transition-all has-checked:border-(--accent) has-checked:bg-(--accent)/5">
+                            <input type="radio" name="payment_method" value="card" checked class="hidden peer">
+                            <i class="fa-solid fa-credit-card text-xl mr-3 opacity-60"></i>
+                            <span class="font-bold">Credit Card</span>
+                            <i
+                                class="fa-solid fa-circle-check absolute top-4 right-4 text-(--accent) opacity-0 peer-checked:opacity-100"></i>
+                        </label>
+
+                        <!-- Cash on Delivery Option -->
+                        <label
+                            class="relative flex items-center p-4 border border-(--border-glass) rounded-2xl cursor-pointer hover:bg-(--bg-primary) transition-all has-checked:border-(--accent) has-checked:bg-(--accent)/5">
+                            <input type="radio" name="payment_method" value="cod" class="hidden peer">
+                            <i class="fa-solid fa-truck-fast text-xl mr-3 opacity-60"></i>
+                            <span class="font-bold">Cash on Delivery</span>
+                            <i
+                                class="fa-solid fa-circle-check absolute top-4 right-4 text-(--accent) opacity-0 peer-checked:opacity-100"></i>
+                        </label>
+                    </div>
+
+                    <!--
+                        Credit Card Details Section
+                        - Visible when "card" option is selected
+                        - Contains card number, expiry date, and CVC fields
+                    -->
+                    <div id="card-details-fields"
+                        class="space-y-4 overflow-hidden transition-all duration-500 ease-in-out">
+                        <div class="pt-4 border-t border-(--border-glass) mt-4">
+                            <input type="text" placeholder="Card Number"
+                                class="w-full bg-(--bg-primary) border border-(--border-glass) p-4 rounded-2xl outline-none focus:border-(--accent)">
+
+                            <div class="grid grid-cols-2 gap-4 mt-4">
+                                <input type="text" placeholder="MM/YY"
+                                    class="bg-(--bg-primary) border border-(--border-glass) p-4 rounded-2xl outline-none focus:border-(--accent)">
+                                <input type="text" placeholder="CVC"
+                                    class="bg-(--bg-primary) border border-(--border-glass) p-4 rounded-2xl outline-none focus:border-(--accent)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= RIGHT SECTION ================= -->
+            <!--
+                Order Summary Panel
+                - Sticky on large screens
+                - Displays cart items, subtotal, and total
+                - Contains final submit button
+            -->
+            <div class="lg:col-span-4">
+                <div class="bg-(--bg-surface) p-6 rounded-3xl border border-(--border-glass) shadow-2xl sticky top-24">
+                    <h2 class="text-xl font-bold mb-6">Order Summary</h2>
+
+                    <!-- Dynamically Rendered Cart Items -->
+                    <div id="checkout-items" class="space-y-4 max-h-100 overflow-y-auto mb-6 pr-2 custom-scrollbar">
+                        <template id="checkout-item-template">
+                            <div class="flex gap-4 items-center animate-fade-in group item-row">
+                                <div
+                                    class="relative w-16 h-16 bg-(--bg-primary) rounded-xl overflow-hidden border border-(--border-glass) shrink-0 group-hover:border-(--accent)/50 transition-colors">
+                                    <img class="item-img w-full h-full object-contain p-2" src="" alt="">
+                                    <span
+                                        class="item-qty absolute -top-1 -right-1 bg-(--accent) text-white text-[10px] min-w-5 h-5 px-1 flex items-center justify-center rounded-full font-bold shadow-lg">
+                                        0
+                                    </span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h4
+                                        class="item-title text-sm font-bold truncate group-hover:text-(--accent) transition-colors">
+                                    </h4>
+                                    <p class="text-[10px] text-(--text-secondary) uppercase tracking-widest font-bold">
+                                        Price: $<span class="item-price">0.00</span>
+                                    </p>
+                                </div>
+                                <span class="item-total font-bold text-sm text-(--text-primary)">
+                                    $0.00
+                                </span>
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- Price Breakdown -->
+                    <div class="space-y-3 border-t border-(--border-glass) pt-6">
+                        <div class="flex justify-between text-(--text-secondary)">
+                            <span>Subtotal</span>
+                            <span id="checkout-subtotal">$0.00</span>
+                        </div>
+
+                        <div class="flex justify-between text-(--text-secondary)">
+                            <span>Shipping</span>
+                            <span class="text-green-500 font-bold">Free</span>
+                        </div>
+
+                        <div class="flex justify-between text-2xl font-black text-(--accent) pt-3">
+                            <span>Total</span>
+                            <span id="checkout-total">$0.00</span>
+                        </div>
+                    </div>
+
+                    <!-- Final Submission Button -->
+                    <button type="submit"
+                        class="w-full mt-8 bg-(--accent) text-white py-5 rounded-2xl font-black uppercase tracking-widest hover:opacity-90 active:scale-95 transition-all shadow-xl shadow-(--accent)/30">
+                        Complete Purchase
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

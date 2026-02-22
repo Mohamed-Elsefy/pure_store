@@ -1,93 +1,124 @@
 // src/core/store/selectors.js
-
-// Import the global store instance
 import store from './store.js';
 
-/**
- * Selectors
- * Responsible for extracting derived data from the state.
- * Helps keep the views/controllers "dumb" and focused on rendering only.
- */
-
-//    Cart Selectors
-export const CartSelectors = {
-    /**
-     * Get all items in the shopping cart
-     * @returns {Array} cart items
-     */
-    getCartItems: () => store.getState().cart,
+export const ProductSelectors = {
 
     /**
-     * Get total quantity of products in the cart
-     * Sums the quantity of each cart item
-     * @returns {number} total quantity
+     * Main selector: filters, searches, and sorts products
+     * @returns {Array} Filtered products (before pagination)
      */
-    getCartCount: () => {
-        const { cart } = store.getState();
-        return cart.reduce((total, item) => total + item.quantity, 0);
+    getFilteredProducts: () => {
+        const { products, searchQuery, filters } = store.getState();
+        let result = [...products];
+
+        // 1. Filter by category
+        if (filters.category) {
+            result = result.filter(p => p.category === filters.category);
+        }
+
+        // 2. Filter by search query (title or brand)
+        if (searchQuery) {
+            const q = searchQuery.toLowerCase();
+            result = result.filter(p =>
+                p.title?.toLowerCase().includes(q) ||
+                p.brand?.toLowerCase().includes(q)
+            );
+        }
+
+        // 3. Filter by price range
+        result = result.filter(p => {
+            const price = Number(p.price) || 0;
+            return price >= (filters.minPrice || 0) && price <= (filters.maxPrice || Infinity);
+        });
+
+        // 4. Sorting based on selected option
+        if (filters.sortBy) {
+            result.sort((a, b) => {
+                switch (filters.sortBy) {
+                    case 'price-asc': return a.price - b.price;
+                    case 'price-desc': return b.price - a.price;
+                    case 'rating-desc': return (b.rating || 0) - (a.rating || 0);
+                    case 'title-asc': return a.title.localeCompare(b.title);
+                    default: return 0;
+                }
+            });
+        }
+
+        return result;
     },
 
     /**
-     * Calculate the total price of the cart
-     * @returns {string} total price formatted as a decimal string
+     * Final selector: paginates the filtered products
+     * @returns {Object} Contains paginated items, total items, total pages, and current page
      */
-    getCartTotal: () => {
-        const { cart } = store.getState();
-        const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        return total.toFixed(2);
+    getPaginatedData: () => {
+        const filtered = ProductSelectors.getFilteredProducts();
+        const { pagination } = store.getState();
+
+        const startIndex = (pagination.currentPage - 1) * pagination.itemsPerPage;
+        const paginatedItems = filtered.slice(startIndex, startIndex + pagination.itemsPerPage);
+
+        return {
+            items: paginatedItems,
+            totalItems: filtered.length,
+            totalPages: Math.ceil(filtered.length / pagination.itemsPerPage),
+            currentPage: pagination.currentPage
+        };
     },
 
-    /**
-     * Check if the cart is empty
-     * @returns {boolean} true if empty, false otherwise
-     */
-    isCartEmpty: () => store.getState().cart.length === 0
-};
-
-//    Authentication Selectors
-export const AuthSelectors = {
-    /**
-     * Check if a user is authenticated
-     * @returns {boolean} true if user is logged in
-     */
-    isAuthenticated: () => !!store.getState().user,
-
-    /**
-     * Get the current logged-in user
-     * @returns {Object|null} user data or null
-     */
-    getCurrentUser: () => store.getState().user,
-
-    /**
-     * Check if the current user is an admin
-     * @returns {boolean} true if user role is admin
-     */
-    isAdmin: () => {
-        const user = store.getState().user;
-        return user && user.role === 'admin';
+    getTopRatedProducts: (limit = 4) => {
+        const { products } = store.getState();
+        return [...products]
+            .sort((a, b) => b.rating - a.rating) 
+            .slice(0, limit);
     }
 };
 
-//    Product Selectors
-export const ProductSelectors = {
+export const CartSelectors = {
+
     /**
-     * Get a product by its ID
-     * @param {number|string} id - product identifier
-     * @returns {Object|undefined} product object or undefined if not found
+     * Retrieve all cart items from the Store
+     * Returns an empty array if cart is undefined
      */
-    getProductById: (id) => {
-        return store.getState().products.find(p => p.id === id);
+    getCartItems: () => store.getState().cart || [],
+
+    /**
+     * Calculate total number of items in the cart
+     * Used for displaying cart badge in Navbar or summary section
+     */
+    getCartCount: () => {
+        const { cart } = store.getState();
+
+        // Sum all item quantities (fallback to 0 if undefined)
+        return cart.reduce((total, item) => {
+            return total + (item.quantity || 0);
+        }, 0);
     },
 
     /**
-     * Filter products by category
-     * @param {string|null} categoryName - category to filter by
-     * @returns {Array} filtered products or all products if no category
+     * Count the number of different types of products in the basket
      */
-    getProductsByCategory: (categoryName) => {
-        const { products } = store.getState();
-        return categoryName
-            ? products.filter(p => p.category === categoryName)
-            : products;
+    getUniqueItemsCount: () => {
+        const { cart } = store.getState();
+        return cart.length;
+    },
+
+    /**
+     * Calculate total monetary value of the cart
+     * Multiplies price by quantity for each item
+     * Returns formatted value with 2 decimal places
+     */
+    getCartTotal: () => {
+        const { cart } = store.getState();
+
+        const total = cart.reduce((total, item) => {
+            const price = item.price || 0;
+            const quantity = item.quantity || 0;
+
+            return total + (price * quantity);
+        }, 0);
+
+        // Format to 2 decimal places for currency display
+        return total.toFixed(2);
     }
 };

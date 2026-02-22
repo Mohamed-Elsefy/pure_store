@@ -1,0 +1,106 @@
+<!-- src/features/product/product.template.html -->
+
+<!-- Main container for product details page -->
+<section class="max-w-7xl mx-auto px-4 py-24">
+
+    <!-- Loading state placeholder (hidden by default) -->
+    <div id="loading-state" class="hidden justify-center items-center py-40"> </div>
+
+    <!-- Product details grid -->
+    <div id="product-details" class="grid grid-cols-1 md:grid-cols-2 gap-12">
+
+        <!-- Left side: Product images -->
+        <div class="grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-4 items-center">
+
+            <!-- Main product image -->
+            <div
+                class="aspect-square rounded-3xl overflow-hidden bg-(--bg-surface) border border-(--border-glass) order-1 sm:order-2">
+                <img id="main-image" alt="" class="w-full h-full object-contain transition-all duration-500">
+            </div>
+
+            <!-- Thumbnails container -->
+            <div id="thumbnails"
+                class="flex flex-row sm:flex-col gap-3 order-2 sm:order-1 overflow-x-auto sm:overflow-y-auto">
+
+                <!-- Thumbnail template to clone for each image -->
+                <template id="thumbnail-item-template">
+                    <img
+                        class="thumb w-20 h-20 object-contain cursor-pointer rounded-xl border border-(--border-glass) hover:border-(--accent) transition-all">
+                </template>
+
+            </div>
+
+        </div>
+
+        <!-- Right side: Product info -->
+        <div class="space-y-6">
+
+            <!-- Category label -->
+            <p data-category class="text-xs uppercase tracking-widest text-(--text-secondary)">
+            </p>
+
+            <!-- Product title -->
+            <h1 data-title class="text-3xl font-black font-(family-name:--fsecond)">
+            </h1>
+
+            <!-- Rating and stock info -->
+            <div class="flex items-center gap-4">
+                <div>
+                    <i class="fa-solid fa-star text-(--accent)"></i>
+                    <span data-rating class="font-bold"></span>
+                </div>
+                <span data-stock class="text-sm text-(--text-secondary)">
+                </span>
+            </div>
+
+            <!-- Product price -->
+            <div data-price class="text-4xl font-extrabold text-(--accent)">
+            </div>
+
+            <!-- Quantity Picker -->
+            <div
+                class="flex items-center justify-between gap-4 bg-(--bg-surface) border border-(--border-glass) rounded-2xl p-2">
+                <div class="flex items-center gap-3">
+
+                    <!-- Increase the quantity -->
+                    <button id="qty-minus"
+                        class="w-10 h-10 rounded-xl hover:bg-(--accent) hover:text-white transition-all">
+                        <i class="fa-solid fa-minus"></i>
+                    </button>
+
+                    <span id="qty-value" class="w-8 text-center font-bold text-lg">1</span>
+
+                    <!-- Reduce the quantity -->
+                    <button id="qty-plus"
+                        class="w-10 h-10 rounded-xl hover:bg-(--accent) hover:text-white transition-all">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                </div>
+
+                <div class="pr-2 border-l border-(--border-glass) pl-4">
+                    <span class="text-xs text-(--text-secondary) block">Total</span>
+                    <span id="qty-total-price" class="font-bold text-xl text-(--accent)">$0.00</span>
+                </div>
+            </div>
+
+            <!-- Product description -->
+            <p data-description class="leading-relaxed text-(--text-secondary)">
+            </p>
+
+            <!-- Add to cart, buy now buttons  -->
+            <div class="flex flex-col sm:flex-row gap-4 mt-8">
+                <button
+                    class="add-to-cart-btn flex-1 py-4 rounded-2xl border border-(--accent) text-(--accent) font-bold hover:bg-(--accent) hover:text-white transition-all active:scale-95">
+                    Add to Cart
+                </button>
+
+                <button
+                    class="buy-now-btn flex-1 py-4 rounded-2xl bg-(--accent) text-white font-bold hover:opacity-90 transition-all active:scale-95 shadow-lg shadow-(--accent)/20">
+                    Buy Now
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+</section>

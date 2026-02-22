@@ -3,6 +3,7 @@
 // Import API configuration and global store
 import { API_CONFIG } from '../config/api.config.js';
 import store from '../store/store.js';
+import { AuthHelper } from '../utils/auth.helper.js';
 
 /**
  * HttpService
@@ -21,16 +22,14 @@ class HttpService {
      * @returns {Object} headers
      */
     _getHeaders() {
-        const { token } = store.getState();
+        const token = AuthHelper.getToken();
         const headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
         };
-
         if (token) {
             headers['Authorization'] = `Bearer ${token}`;
         }
-
         return headers;
     }
 

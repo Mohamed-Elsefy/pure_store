@@ -1,89 +1,92 @@
 // core/store/store.js
 
-/**
- * Simple Global State Management (Store)
- * Acts as a single source of truth for the entire application
- */
 class Store {
     constructor() {
-        /**
-         * 1. Initial Application State
-         * Holds all shared data used across the app
-         */
+
+        const savedUser = JSON.parse(localStorage.getItem('user'));
+        const savedToken = localStorage.getItem('token');
+
         this.state = {
-            user: null,                         // Logged-in user data
-            token: null,                        // Authentication token
-            cart: [],                           // Shopping cart items
-            products: [],                       // Products list
-            categories: [],                     // Product categories
-            theme: localStorage.getItem('theme') || 'light', // UI theme
-            loading: false                      // Global loading indicator
+            // Authentication state (Grouped for clarity)
+            auth: {
+                user: null,          // Full user object from API
+                token: null,         // accessToken
+                isAuthenticated: false,
+                loading: false,      // Specific loading for auth actions
+                error: null          // For login/register error messages
+            },
+
+            // Core data fetched from API (static after load)
+            products: [],      // Raw list of products
+            categories: [],    // List of categories
+
+            // Filtering and search state (used by selectors)
+            searchQuery: '',
+            filters: {
+                category: null,
+                minPrice: 0,
+                maxPrice: Infinity,
+                sortBy: '' // Options: 'price-asc', 'price-desc', 'rating-desc', 'title-asc'
+            },
+
+            // Pagination state
+            pagination: {
+                currentPage: 1,
+                itemsPerPage: 12
+            },
+
+            // Other data
+            cart: [],
+            buyNowItem: null,
+            theme: localStorage.getItem('theme') || 'light',
+            loading: false // Loading for general content
         };
 
-        /**
-         * 2. Subscribers list
-         * Components (views/controllers) register here
-         * to be notified when the state changes
-         */
+        // Listeners subscribed to state changes
         this.listeners = [];
     }
 
     /**
-     * Get the current state (read-only access)
-     * @returns {Object} current application state
+     * Get the current state
+     * @returns {Object} Current store state
      */
     getState() {
         return this.state;
     }
 
     /**
-     * Update the state
-     * Merges the existing state with the new partial state
-     *
-     * @param {Object} newState - Partial state to update
+     * Update the state with new values and notify listeners
+     * @param {Object} newState - Partial state to merge
      */
     setState(newState) {
-        // Merge old state with new values
+        // Merge old state with new state
         this.state = {
             ...this.state,
             ...newState
         };
-
-        // Notify all subscribers about the change
         this.notify();
     }
 
     /**
      * Subscribe to state changes
-     * Each subscriber is a callback function
-     *
-     * @param {Function} listener - Function called on every state update
-     * @returns {Function} unsubscribe function
+     * @param {Function} listener - Callback function receiving the new state
+     * @returns {Function} Unsubscribe function
      */
     subscribe(listener) {
         this.listeners.push(listener);
-
-        /**
-         * Return unsubscribe function
-         * Helps prevent memory leaks and improves performance
-         */
         return () => {
             this.listeners = this.listeners.filter(l => l !== listener);
         };
     }
 
     /**
-     * Notify all subscribers
-     * Called internally after every state update
+     * Notify all subscribed listeners of state changes
      */
     notify() {
         this.listeners.forEach(listener => listener(this.state));
     }
 }
 
-/**
- * Export a single instance (Singleton Pattern)
- * Ensures the entire application shares the same store
- */
+// Export a singleton store instance
 const store = new Store();
 export default store;
