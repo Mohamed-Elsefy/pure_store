@@ -1,21 +1,47 @@
 // src/features/auth/auth.controller.js
+
 import { AuthView } from './auth.view.js';
 import { AuthActions } from '../../core/store/auth.actions.js';
 import { AuthValidator } from '../../core/utils/auth.validator.js';
 
+/*
+|--------------------------------------------------------------------------
+| AuthController
+|--------------------------------------------------------------------------
+| Acts as the mediator between the View and the Store.
+| - Determines current mode (login/register)
+| - Handles form submission
+| - Performs validation
+| - Triggers authentication actions
+| - Controls navigation flow after success
+*/
 export class AuthController {
     constructor() {
+        // Initialize view and detect current mode based on URL hash
         this.view = new AuthView();
-        // نحدد النوع بناءً على الـ Hash الحالي
         this.isRegisterMode = window.location.hash.includes('register');
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Initialization
+    |--------------------------------------------------------------------------
+    | Renders the correct form (login or register)
+    | Then binds required DOM events.
+    */
     async init() {
         const mode = this.isRegisterMode ? 'register' : 'login';
         await this.view.render(mode);
         this._bindEvents();
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Event Binding
+    |--------------------------------------------------------------------------
+    | - Listens for form submission
+    | - Clears error message when user starts typing
+    */
     _bindEvents() {
         const formId = this.isRegisterMode ? 'register-form' : 'login-form';
         const form = document.getElementById(formId);
@@ -31,24 +57,36 @@ export class AuthController {
         }
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Form Submission Handler
+    |--------------------------------------------------------------------------
+    | 1. Prevent default submission
+    | 2. Collect form data
+    | 3. Validate input (client-side)
+    | 4. Trigger authentication action
+    | 5. Redirect on success
+    | 6. Reset loading state on failure
+    */
     async _handleSubmit(e) {
         e.preventDefault();
+
         const formData = new FormData(e.target);
         const data = Object.fromEntries(formData.entries());
 
-        // 1. التحقق من البيانات محلياً (Client-side Validation)
+        // Client-side validation
         const errorMessage = await AuthValidator.validate(data, this.isRegisterMode);
-        
         if (errorMessage) {
             this.view.showError(errorMessage);
-            return; // توقف هنا ولا ترسل الطلب للسيرفر
+            return;
         }
 
-        // 2. تفعيل حالة التحميل
+        // Enable loading state
         const btnId = this.isRegisterMode ? 'register-btn' : 'login-btn';
         this.view.setLoading(true, btnId);
 
         let success = false;
+
         try {
             if (this.isRegisterMode) {
                 success = await AuthActions.register(data);
@@ -66,6 +104,13 @@ export class AuthController {
         }
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Cleanup
+    |--------------------------------------------------------------------------
+    | Called when the controller is destroyed.
+    | Delegates cleanup logic to the view.
+    */
     destroy() {
         this.view.destroy();
     }

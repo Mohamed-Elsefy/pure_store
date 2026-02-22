@@ -1,7 +1,7 @@
 // src/main.js
 
 // Import core router to handle SPA navigation
-import './core/router/router.js';
+import router from './core/router/router.js';
 
 // Import layout rendering functions
 import { renderNavbar } from './layouts/navbar.js';
@@ -27,6 +27,7 @@ const bootstrap = async () => {
     //Render global layout components (Navbar and Footer) concurrently
     await Promise.all([renderNavbar(), renderFooter()]);
 
+    router.init();
 
 };
 

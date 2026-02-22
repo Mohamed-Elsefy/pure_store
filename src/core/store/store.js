@@ -2,6 +2,10 @@
 
 class Store {
     constructor() {
+
+        const savedUser = JSON.parse(localStorage.getItem('user'));
+        const savedToken = localStorage.getItem('token');
+
         this.state = {
             // Authentication state (Grouped for clarity)
             auth: {

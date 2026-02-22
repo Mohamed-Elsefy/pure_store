@@ -2,6 +2,17 @@
 
 import { loadTemplate } from '../../core/utils/template.loader.js';
 
+/*
+|--------------------------------------------------------------------------
+| AuthView
+|--------------------------------------------------------------------------
+| Responsible for rendering the login/register UI and handling UI effects.
+| - Loads HTML templates dynamically
+| - Handles wave canvas animation
+| - Controls loading state for buttons
+| - Displays error messages
+| - Cleans up animations and event listeners
+*/
 export class AuthView {
     constructor() {
         this.appElement = document.getElementById('app');
@@ -9,6 +20,13 @@ export class AuthView {
         this._resizeHandler = null;
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Render Template
+    |--------------------------------------------------------------------------
+    | Loads the specified template (login or register)
+    | Inserts it into the DOM and initializes wave animation.
+    */
     async render(viewType = 'login') {
         const templatePath = `/src/features/auth/${viewType}.template.html`;
         const template = await loadTemplate(templatePath);
@@ -17,6 +35,13 @@ export class AuthView {
         this.initWaveAnimation();
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Wave Animation
+    |--------------------------------------------------------------------------
+    | Creates a canvas-based animated background.
+    | Handles responsive resizing and multiple wave lines with varying colors, amplitude, and speed.
+    */
     initWaveAnimation() {
         const canvas = document.getElementById('wavesCanvas');
         if (!canvas) return;
@@ -43,6 +68,7 @@ export class AuthView {
         const draw = () => {
             tick += 0.03;
             ctx.clearRect(0, 0, width, height);
+
             lines.forEach((line) => {
                 ctx.beginPath();
                 ctx.strokeStyle = line.color;
@@ -58,8 +84,10 @@ export class AuthView {
                     if (d === 0) ctx.moveTo(x, y);
                     else ctx.lineTo(x, y);
                 }
+
                 ctx.stroke();
             });
+
             this.animationId = requestAnimationFrame(draw);
         };
 
@@ -67,6 +95,13 @@ export class AuthView {
         draw();
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Button Loading State
+    |--------------------------------------------------------------------------
+    | Updates the submit button to show a spinner and disable interaction
+    | while an async operation is in progress.
+    */
     setLoading(isLoading, btnId = 'auth-btn') {
         const btn = document.getElementById(btnId);
         if (btn) {
@@ -77,6 +112,12 @@ export class AuthView {
         }
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Display Error
+    |--------------------------------------------------------------------------
+    | Shows a user-friendly error message inside the UI container.
+    */
     showError(message) {
         const errorContainer = document.getElementById('auth-error');
         const errorMessage = document.getElementById('error-message');
@@ -86,6 +127,12 @@ export class AuthView {
         }
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Cleanup
+    |--------------------------------------------------------------------------
+    | Cancels animation frame and removes window resize listener when the view is destroyed.
+    */
     destroy() {
         if (this.animationId) cancelAnimationFrame(this.animationId);
         if (this._resizeHandler) window.removeEventListener('resize', this._resizeHandler);
