@@ -21,12 +21,15 @@ export const loadTemplate = async (path) => {
     }
 
     try {
-        const cleanPath = path.startsWith('/') ? path.substring(1) : path;
-        const baseUrl = window.location.origin + window.location.pathname;
-        const finalPath = new URL(cleanPath, baseUrl).href;
+        const cleanPath = path.replace(/^\.+\//, '').replace(/^\//, '');
 
-        // Fetch the template using the absolute path
-        const response = await fetch(finalPath);
+        const isGitHub = window.location.hostname.includes('github.io');
+        const base = isGitHub ? `${window.location.origin}/pure_store/` : `${window.location.origin}/`;
+
+        const finalUrl = new URL(cleanPath, base).href;
+
+        // Fetch the template using the calculated absolute path
+        const response = await fetch(finalUrl);
 
         // Throw an error if HTTP status is not OK
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);

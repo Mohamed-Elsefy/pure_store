@@ -80,8 +80,12 @@ class Router {
         this.appElement.innerHTML = '';
 
         try {
-            const baseUrl = window.location.origin + window.location.pathname;
-            const absolutePath = new URL(route.importPath, baseUrl).href;
+            const cleanPath = route.importPath.replace(/^\.+\//, '');
+
+            const isGitHub = window.location.hostname.includes('github.io');
+            const base = isGitHub ? `${window.location.origin}/pure_store/` : `${window.location.origin}/`;
+
+            const absolutePath = new URL(cleanPath, base).href;
 
             const module = await import(absolutePath);
 
