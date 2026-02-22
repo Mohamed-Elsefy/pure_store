@@ -33,7 +33,6 @@ const setupNavbarInteractions = () => {
     const resultsContainer = document.getElementById('search-results');
     const searchTemplate = document.getElementById('search-result-template');
     const themeIcon = themeBtn?.querySelector('i');
-    const logoutBtn = document.getElementById('logout-btn');
     const cartBadge = document.getElementById('cart-badge');
 
     // qunatity of cart
@@ -57,7 +56,6 @@ const setupNavbarInteractions = () => {
         const loginLink = document.getElementById('nav-login-link');
         const userInfo = document.getElementById('nav-user-info');
         const usernameSpan = document.getElementById('nav-username');
-        const logoutBtn = document.getElementById('logout-btn'); // Logout icon/button
 
         // Get current auth state from the store
         const { auth } = store.getState();
@@ -74,10 +72,6 @@ const setupNavbarInteractions = () => {
             // Display user's first name
             if (usernameSpan) usernameSpan.textContent = auth.user.firstName;
 
-            // Show logout button
-            logoutBtn?.classList.remove('hidden');
-            logoutBtn?.classList.add('flex');
-
         } else {
 
             // Show login link
@@ -86,21 +80,11 @@ const setupNavbarInteractions = () => {
             // Hide user info
             userInfo?.classList.add('hidden');
             userInfo?.classList.remove('flex');
-
-            // Hide logout button
-            logoutBtn?.classList.add('hidden');
-            logoutBtn?.classList.remove('flex');
         }
     };
 
     // Initial UI update on load
     updateAuthUI();
-
-    // Attach logout button click handler
-    logoutBtn?.addEventListener('click', () => {
-        // Dispatch logout action
-        AuthActions.logout();
-    });
 
     // Subscribe to store updates
     store.subscribe(() => {

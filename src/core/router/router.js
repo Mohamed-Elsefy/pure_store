@@ -9,11 +9,9 @@ class Router {
         this.appElement = document.getElementById('app');
         // Keep a reference to the current controller to allow cleanup later
         this.currentController = null;
-
-        this._init();
     }
 
-    _init() {
+    init() {
         // Clean the URL from 'index.html' if present
         if (window.location.pathname.includes('index.html')) {
             const cleanPath = window.location.pathname.replace('index.html', '');
