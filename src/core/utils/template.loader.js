@@ -21,8 +21,12 @@ export const loadTemplate = async (path) => {
     }
 
     try {
-        // Fetch the template from the server
-        const response = await fetch(path);
+        const cleanPath = path.startsWith('/') ? path.substring(1) : path;
+        const baseUrl = window.location.origin + window.location.pathname;
+        const finalPath = new URL(cleanPath, baseUrl).href;
+
+        // Fetch the template using the absolute path
+        const response = await fetch(finalPath);
 
         // Throw an error if HTTP status is not OK
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
